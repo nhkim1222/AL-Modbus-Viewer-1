@@ -1,5 +1,6 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
+const { connectServer } = require("./Modbus/Connection");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -16,7 +17,6 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
-      devTools: isDev,
       preload: __dirname + "/preload.js",
     },
   });
@@ -26,6 +26,12 @@ const createWindow = () => {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+
+  connectServer({
+    ip: "localhost",
+    port: 502,
+    webContents: mainWindow.webContents,
+  });
 };
 
 // This method will be called when Electron has finished

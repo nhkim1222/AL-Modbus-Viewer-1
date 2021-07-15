@@ -1,7 +1,7 @@
 import React from "react";
 import { HashRouter, Route, Switch, Redirect } from "react-router-dom";
-import IOModule from "../Route/IOModule";
-import MainModule from "../Route/MainModule";
+import IOModule from "../Router/IOModule";
+import MainModule from "../Router/MainModule";
 import Header from "./Header";
 
 function Router() {
