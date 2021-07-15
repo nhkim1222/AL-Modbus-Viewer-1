@@ -15,8 +15,21 @@ const GlobalStyle = createGlobalStyle`
         font-size: 12px;
         background-color: rgba(20,20,20,1);
         color: white;
-        padding-top: 60px;
+        margin: 0px;
+        display: flex;
+        box-sizing: border-box;
+        overflow: hidden;
+        height: 100%
     };
+    html{
+        height: 100%
+    }
+    #root{
+        display: flex;
+        box-sizing: border-box;
+        overflow: hidden;
+        height: 100%
+    }
 `;
 
 export default GlobalStyle;

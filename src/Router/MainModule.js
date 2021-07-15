@@ -4,13 +4,12 @@ import LDInformation from "../Components/Main/LDInformation";
 import LMDigitalInput from "../Components/Main/LMDigitalInput";
 import LMDigitalOutput from "../Components/Main/LMDigitalOutput";
 import LMInformation from "../Components/Main/LMInformation";
+import A2750LMSetup from "../Components/Main/LMSetup";
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: no-wrap;
-  justify-content: left;
-  align-items: flex-start;
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
 `;
 function MainModule() {
   return (
@@ -21,6 +20,7 @@ function MainModule() {
       <LDInformation partner={true} />
       <LMDigitalInput />
       <LMDigitalOutput />
+      <A2750LMSetup />
     </Container>
   );
 }
