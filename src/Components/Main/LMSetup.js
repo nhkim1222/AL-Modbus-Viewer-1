@@ -73,7 +73,6 @@ const Apply = styled.input.attrs("submit")`
   justify-content: center;
   width: 100%;
   height: 26px;
-  /* ���� */
   background: #228be6;
   &:hover {
     background: #339af0;
@@ -100,9 +99,14 @@ function A2750LMSetup() {
     analogDeadband: 0,
     alarmThreshold: 0,
   });
+  const operationMode = watch('operationMode');
+  const digitalOperation = watch('digitalOperation');
+  const analogDeadband = watch('analogDeadband');
+  const alarmThreshold = watch('alarmThreshold');
 
   useIpcOn(CHANNEL_LM_SETUP, (evt, ...args) => {
     const setup = args;
+    console.log(setup);
     setValue("operationMode", setup.operationMode);
     setValue("digitalOperation", setup.digitalOperation);
     setValue("analogDeadband", setup.analogDeadband);
@@ -113,25 +117,25 @@ function A2750LMSetup() {
     <FormBox onSubmit={handleSubmit(onSubmit)}>
       <Container>
         <Label>operation mode</Label>
-        <Select {...register("operationMode")}>
-          <Option value={1}>StandAlone</Option>
-          <Option value={2}>2-Active</Option>
+        <Select name="operationMode" ref={register("operationMode")}>
+          <Option value={0}>StandAlone</Option>
+          <Option value={1}>2-Active</Option>
         </Select>
       </Container>
       <Container>
         <Label>digital operation</Label>
-        <Select {...register("digitalOperation")}>
-          <option value={1}>AND</option>
-          <option value={2}>OR </option>
+        <Select ref={register("digitalOperation")} defaultValue={1}>
+          <option value={0}>AND</option>
+          <option value={1}>OR </option>
         </Select>
       </Container>
       <Container>
         <Label>analog deadband</Label>
-        <input {...register("analogDeadband")}></input>
+        <input  ref={register("analogDeadband")} defaultValue={0}></input>
       </Container>
       <Container>
         <Label>alarm threshold</Label>
-        <input {...register("alarmThreshold")}></input>
+        <input name="alarmThreshold"  ref={register("alarmThreshold")} defaultValue={0}></input>
       </Container>
       <SubmitContainer>
         <Apply type="submit" value="submit"></Apply>

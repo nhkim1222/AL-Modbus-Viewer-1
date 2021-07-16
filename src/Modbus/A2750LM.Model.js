@@ -98,11 +98,12 @@ const parseA2750LMMismatchAlarm = (data) => {
 };
 
 export function parseA2750LMSetup(data) {
+  console.log(data);
   return {
-    operationMode: data[0],
-    digitalOperation: data[1],
-    analogDeadband: data[2],
-    alarmThreshold: data[3],
+    operationMode: data[1],
+    digitalOperation: data[2],
+    analogDeadband: data[3] | data[4]<<16, 
+    alarmThreshold: data[5] | data[6]<<16,
   };
 }
 
