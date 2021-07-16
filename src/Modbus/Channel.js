@@ -7,3 +7,4 @@ exports.CHANNEL_LD_PARTNER_INFO = "channel_ld_partner_info";
 exports.CHANNEL_LM_DO_COMMAND = "channel_lm_do_command";
 exports.CHANNEL_LD_MISMATCH_ALARM = "channel_lm_mismatch_alarm";
 exports.CHANNEL_LM_SETUP = "channel_lm_setup";
+exports.SLICE_CHANNEL_IO_INFO = "channel_io_info";

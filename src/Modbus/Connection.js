@@ -34,11 +34,29 @@ function startToUpdate(webContents) {
       await Promise.all(
         a2700registerMap.map(async (register) => {
           if (register.fc === 3) {
-            const { data } = await readRegister(register);
-            if (register.parser != null) {
-              register.data = register.parser(data);
+            if(register.slice == true)
+            {
+              const addr = register.address;
+              for(var i = 0; i < register.slice_id; i ++)
+              {
+                register.address = register.address + (i * register.length);
+                console.log(register);
+                const { data } = await readRegister(register);
+                if (register.parser != null) {
+                  register.data = register.parser(data);    
+                }          
+                const channel = `${register.channel}_${i}`              
+                webContents.send(channel, register.data);
+              }
+              register.address = addr;
             }
-            webContents.send(register.channel, register.data);
+            else{
+              const { data } = await readRegister(register);
+              if (register.parser != null) {
+                register.data = register.parser(data);
+              }
+              webContents.send(register.channel, register.data);
+            }
           } else if (register.fc === 1) {
             const { data } = await readCoil(register);
             register.data = register.parser(data);

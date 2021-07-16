@@ -5,6 +5,7 @@ import {
   parseLMDIStatus,
   parseLMDOStatus,
   parseLMProductInformation,
+  parseIOProductInformation,
 } from "./A2750LM.Model";
 import {
   CHANNEL_LD_INFO,
@@ -15,6 +16,7 @@ import {
   CHANNEL_LM_INFO,
   CHANNEL_LM_PARTNER_INFO,
   CHANNEL_LM_SETUP,
+  SLICE_CHANNEL_IO_INFO ,
 } from "./Channel";
 
 export const a2700registerMap = [
@@ -151,5 +153,24 @@ export const a2700registerMap = [
       alarmThreshold: 1,
     },
     parser: parseA2750LMSetup,
+  },
+  {
+    fc: 3,
+    address: 62050,
+    length: 12,
+    channel: SLICE_CHANNEL_IO_INFO,
+    slice: true,
+    slice_id : 15,
+    data: {
+      operationState: "", //1w
+      moduleType : "",
+      productCode: 0, // 1w
+      serialNumber: 0, // 2w
+      hardwareRevision: 1, // 2w
+      pcbVersion: "", // 1w
+      applicationVersion: "", // 1w
+      bootloaderVersion: "", // 1w
+    },
+    parser: parseIOProductInformation,
   },
 ];
