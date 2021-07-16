@@ -141,7 +141,7 @@ export const a2700registerMap = [
   },
   {
     fc: 3,
-    address: 60000,
+    address: 64011,
     length: 4,
     channel: CHANNEL_LM_SETUP,
     data: {
