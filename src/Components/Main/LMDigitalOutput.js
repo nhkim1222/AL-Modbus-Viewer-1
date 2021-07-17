@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ContentBox, TitleLabel } from "../Style";
-import useIpcOn from "../../Hooks/useIpcOn";
+import useIpcOn, { usePolling } from "../../Hooks/useIpcOn";
 import {
   CHANNEL_LM_DO_COMMAND,
   CHANNEL_LM_DO_STATUS,
@@ -9,12 +9,11 @@ import { DOContent } from "../DIOContent";
 
 function LMDigitalOutput() {
   const setCommand = ({ ch, value }) => {
-    console.log(`command = ${ch}`);
     const data = {
       ch,
-      value: value === "Close" ? 0 : 1,
+      value: value ? false : true,
     };
-    ipcRenderer.send(CHANNEL_LM_DO_COMMAND, data);
+    ipcRenderer.send("set-lm-do-cmd", data);
   };
   const [doStatus, setDOStatus] = useState({
     channel1: "",
@@ -28,9 +27,8 @@ function LMDigitalOutput() {
     channel9: "",
   });
 
-  useIpcOn(CHANNEL_LM_DO_STATUS, (evt, ...args) => {
-    setDOStatus(...args);
-  });
+  usePolling("set-lm-do-status", setDOStatus);
+
   return (
     <ContentBox>
       <TitleLabel>Digital Output</TitleLabel>

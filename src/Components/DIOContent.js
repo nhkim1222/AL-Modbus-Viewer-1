@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 const DIValue = styled.div`
@@ -9,7 +9,8 @@ const DIValue = styled.div`
   width: 100px;
   height: 24px;
   font-weight: ${(props) => (props.priority === "high" ? 600 : 400)};
-  color: ${(props) => (props.on == true ? "rgba(104,212,109,1.0)" : "grey")};
+  color: ${(props) =>
+    props.value === true ? "rgba(104,212,109,1.0)" : "grey"};
 `;
 
 const Container = styled.div`
@@ -35,8 +36,8 @@ export const DIContent = ({ ch, value, on, priority }) => {
   return (
     <Container>
       <Title>channel {ch}</Title>
-      <DIValue on={value == "Energized"} priority="high">
-        {value}
+      <DIValue value={value} priority="high">
+        {value ? "Energized" : "De-energized"}
       </DIValue>
     </Container>
   );
@@ -46,8 +47,8 @@ export const DOContent = ({ ch, value, setCommand }) => {
   return (
     <Container>
       <Title>channel {ch}</Title>
-      <DIValue on={value == "Close"} priority="high">
-        {value}
+      <DIValue value={value} priority="high">
+        {value === true ? "Close" : "Open"}
       </DIValue>
       <button onClick={() => setCommand({ ch, value })}>set</button>
     </Container>

@@ -19,3 +19,22 @@ export default function useIpcOn(channel, callbackFunction) {
     };
   }, [channel]);
 }
+export function usePolling(channel, callbackFunction) {
+  const savedHandler = useRef();
+  useEffect(() => {
+    savedHandler.current = callbackFunction;
+  }, [callbackFunction]);
+  useEffect(() => {
+    if (!ipcRenderer)
+      throw new Error(
+        "electron-use-ipc-listener: Use useIpcListener in the Renderer process only"
+      );
+    const eventHandler = (event, rest) => {
+      savedHandler.current(rest);
+    };
+    ipcRenderer.on(channel, eventHandler);
+    return () => {
+      ipcRenderer.removeListener(channel, eventHandler);
+    };
+  }, [channel]);
+}

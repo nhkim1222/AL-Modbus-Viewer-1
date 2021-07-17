@@ -1,66 +1,65 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import useIpcOn from "../../Hooks/useIpcOn";
-import { CHANNEL_LD_INFO, CHANNEL_LD_PARTNER_INFO } from "../../Modbus/Channel";
+import React, { useState, useEffect, useRef } from "react";
+import { usePolling } from "../../Hooks/useIpcOn";
 import { DataContent } from "../DataContent";
 import { ContentBox, TitleLabel } from "../Style";
 
 function LDInformation({ partner }) {
-  const [ldInfo, setLdInfo] = useState({
-    operationState: "",
-    productCode: "",
-    serialNumber: "",
-    hardwareRevision: "",
-    applicationVersion: "",
-    kernelVersion: "",
-    bootloaderVersion: "",
-    pcbVersion: "",
+  const [information, setInformation] = useState({
+    operationState: "UNIDENTIFIED",
+    productCode: "R9",
+    serialNumber: 10000,
+    hardwareRevision: 0,
+    applicationVersion: "0.0.000",
+    kernelVersion: "0.0.000",
+    bootloaderVersion: "0.0.000",
+    pcbVersion: 0,
   });
-  const channel = partner ? CHANNEL_LD_PARTNER_INFO : CHANNEL_LD_INFO;
-  useIpcOn(channel, (evt, ...args) => {
-    setLdInfo(...args);
-  });
+  const channel =
+    partner !== true ? "set-ld-information" : "set-ld-information-partner";
+
+  usePolling(channel, setInformation);
+
   return (
     <ContentBox>
       <TitleLabel>Accura 2750LD {partner ? "(PARTNER)" : ""}</TitleLabel>
       <DataContent
         prop="operationState"
-        value={ldInfo.operationState}
+        value={information.operationState}
         priority="high"
       />
       <DataContent
         prop="productCode"
-        value={ldInfo.productCode}
+        value={information.productCode}
         priority="high"
       />
       <DataContent
         prop="serialNumber"
-        value={ldInfo.serialNumber}
+        value={information.serialNumber}
         priority="high"
       />
       <DataContent
         prop="hardwareRevision"
-        value={ldInfo.hardwareRevision}
+        value={information.hardwareRevision}
         priority="high"
       />
       <DataContent
         prop="applicationVersion"
-        value={ldInfo.applicationVersion}
+        value={information.applicationVersion}
         priority="high"
       />
       <DataContent
         prop="kernelVersion"
-        value={ldInfo.kernelVersion}
+        value={information.kernelVersion}
         priority="high"
       />
       <DataContent
         prop="bootloaderVersion"
-        value={ldInfo.bootloaderVersion}
+        value={information.bootloaderVersion}
         priority="high"
       />
       <DataContent
         prop="pcbVersion"
-        value={ldInfo.pcbVersion}
+        value={information.pcbVersion}
         priority="high"
       />
     </ContentBox>

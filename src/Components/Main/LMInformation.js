@@ -1,39 +1,36 @@
-import React, { useState } from "react";
-import styled from "styled-components";
+import React, { useState, useEffect, useRef } from "react";
+import { usePolling } from "../../Hooks/useIpcOn";
 import { DataContent } from "../DataContent";
 import { ContentBox, TitleLabel } from "../Style";
-import useIpcOn from "../../Hooks/useIpcOn";
-import { CHANNEL_LM_INFO, CHANNEL_LM_PARTNER_INFO } from "../../Modbus/Channel";
+
+const operation_state = (val) => {
+  if (val === 1) return "Bootloader";
+  if (val === 2) return "Application";
+  return "UNIDENIFIED";
+};
 
 function LMInformation({ partner }) {
   const [information, setInformation] = useState({
-    operationState: 0,
+    operationState: 1,
     productCode: 0,
     serialNumber: 0,
     hardwareRevision: 0,
     pcbVersion: 0,
-    applicationVersion: "0.0.000",
-    bootloaderVersion: "0.0.000",
+    applicationVersion: 0,
+    bootloaderVersion: 0,
   });
-  const channel = !partner ? CHANNEL_LM_INFO : CHANNEL_LM_PARTNER_INFO;
-  useIpcOn(channel, (evt, ...args) => {
-    setInformation(...args);
-  });
+
+  if (partner !== true) usePolling("set-lm-information", setInformation);
+  else usePolling("set-lm-information-partner", setInformation);
+
   return (
     <ContentBox>
-      <TitleLabel>
-        Accura 2750LM {partner === true ? "(PARTNER)" : ""}
-      </TitleLabel>
+      <TitleLabel>Accura 2750LM {partner ? "(P)" : "(A)"}</TitleLabel>
       <DataContent
         prop="operation state"
-        value={information.operationState}
-        invalid={information.operationState === "UNIDENIFIED"}
-        priority="high"
-      ></DataContent>
-      <DataContent
-        prop="produrct code"
-        value={information.productCode}
-      ></DataContent>
+        value={operation_state(information.operationState)}
+      />
+      <DataContent prop="produrct code" value={information.productCode} />
       <DataContent
         prop="serial number"
         value={information.serialNumber}
@@ -41,19 +38,16 @@ function LMInformation({ partner }) {
       <DataContent
         prop="hardware revision"
         value={information.hardwareRevision}
-      ></DataContent>
-      <DataContent
-        prop="pcb version"
-        value={information.pcbVersion}
-      ></DataContent>
+      />
+      <DataContent prop="pcb version" value={information.pcbVersion} />
       <DataContent
         prop="application version"
         value={information.applicationVersion}
-      ></DataContent>
+      />
       <DataContent
         prop="bootloader version"
         value={information.bootloaderVersion}
-      ></DataContent>
+      />
     </ContentBox>
   );
 }

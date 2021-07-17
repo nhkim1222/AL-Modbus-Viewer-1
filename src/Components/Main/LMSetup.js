@@ -99,14 +99,13 @@ function A2750LMSetup() {
     analogDeadband: 0,
     alarmThreshold: 0,
   });
-  const operationMode = watch('operationMode');
-  const digitalOperation = watch('digitalOperation');
-  const analogDeadband = watch('analogDeadband');
-  const alarmThreshold = watch('alarmThreshold');
+  const operationMode = watch("operationMode");
+  const digitalOperation = watch("digitalOperation");
+  const analogDeadband = watch("analogDeadband");
+  const alarmThreshold = watch("alarmThreshold");
 
   useIpcOn(CHANNEL_LM_SETUP, (evt, ...args) => {
     const setup = args;
-    console.log(setup);
     setValue("operationMode", setup.operationMode);
     setValue("digitalOperation", setup.digitalOperation);
     setValue("analogDeadband", setup.analogDeadband);
@@ -131,11 +130,15 @@ function A2750LMSetup() {
       </Container>
       <Container>
         <Label>analog deadband</Label>
-        <input  ref={register("analogDeadband")} defaultValue={0}></input>
+        <input ref={register("analogDeadband")} defaultValue={0}></input>
       </Container>
       <Container>
         <Label>alarm threshold</Label>
-        <input name="alarmThreshold"  ref={register("alarmThreshold")} defaultValue={0}></input>
+        <input
+          name="alarmThreshold"
+          ref={register("alarmThreshold")}
+          defaultValue={0}
+        ></input>
       </Container>
       <SubmitContainer>
         <Apply type="submit" value="submit"></Apply>

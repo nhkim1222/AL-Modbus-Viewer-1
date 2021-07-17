@@ -1,46 +1,26 @@
-import {
-  parseA2750LDInformation,
-  parseA2750LMMismatchAlarm,
-  parseA2750LMSetup,
-  parseLMDIStatus,
-  parseLMDOStatus,
-  parseLMProductInformation,
-  parseIOProductInformation,
-} from "./A2750LM.Model";
-import {
-  CHANNEL_LD_INFO,
-  CHANNEL_LD_MISMATCH_ALARM,
-  CHANNEL_LD_PARTNER_INFO,
-  CHANNEL_LM_DI_STATUS,
-  CHANNEL_LM_DO_STATUS,
-  CHANNEL_LM_INFO,
-  CHANNEL_LM_PARTNER_INFO,
-  CHANNEL_LM_SETUP,
-  SLICE_CHANNEL_IO_INFO ,
-} from "./Channel";
+import { parseIOProductInformation } from "./A2750LM.Model";
+import { SLICE_CHANNEL_IO_INFO } from "./Channel";
 
-export const a2700registerMap = [
-  {
+export const map = {
+  /** lm register **/
+  REG_LM_INFO: {
     fc: 3,
     address: 62001,
     length: 11,
-    channel: CHANNEL_LM_INFO,
     data: {
-      operationState: "", //1w
+      operationState: 0, //1w
       productCode: 0, // 1w
       serialNumber: 0, // 2w
-      hardwareRevision: 1, // 2w
-      pcbVersion: "", // 1w
-      applicationVersion: "", // 1w
-      bootloaderVersion: "", // 1w
+      hardwareRevision: 0, // 2w
+      pcbVersion: 0, // 1w
+      applicationVersion: 0, // 1w
+      bootloaderVersion: 0, // 1w
     },
-    parser: parseLMProductInformation,
   },
-  {
+  REG_LM_INFO_PARTNER: {
     fc: 3,
     address: 62031,
     length: 11,
-    channel: CHANNEL_LM_PARTNER_INFO,
     data: {
       operationState: "", //1w
       productCode: 0, // 1w
@@ -50,120 +30,111 @@ export const a2700registerMap = [
       applicationVersion: "", // 1w
       bootloaderVersion: "", // 1w
     },
-    parser: parseLMProductInformation,
   },
-  {
-    fc: 1,
-    address: 1001,
-    length: 18,
-    channel: CHANNEL_LM_DI_STATUS,
-    data: {
-      channel1: "",
-      channel2: "",
-      channel3: "",
-      channel4: "",
-      channel5: "",
-      channel6: "",
-      channel7: "",
-      channel8: "",
-      channel9: "",
-      channel10: "",
-      channel11: "",
-      channel12: "",
-      channel13: "",
-      channel14: "",
-      channel15: "",
-      channel16: "",
-      channel17: "",
-      channel18: "",
-    },
-    parser: parseLMDIStatus,
-  },
-  {
-    fc: 1,
-    address: 1349,
-    length: 9,
-    channel: CHANNEL_LM_DO_STATUS,
-    data: {
-      channel1: "",
-      channel2: "",
-      channel3: "",
-      channel4: "",
-      channel5: "",
-      channel6: "",
-      channel7: "",
-      channel8: "",
-      channel9: "",
-    },
-    parser: parseLMDOStatus,
-  },
-  {
-    fc: 1,
+  REG_LD_INFO: {
+    fc: 3,
     address: 62300,
     length: 9,
-    channel: CHANNEL_LD_INFO,
     data: {
-      operationState: "",
-      productCode: "",
-      serialNumber: "",
-      hardwareRevision: "",
-      applicationVersion: "",
-      kernelVersion: "",
-      bootloaderVersion: "",
-      pcbVersion: "",
+      operationState: 0,
+      productCode: 0,
+      serialNumber: 0,
+      hardwareRevision: 0,
+      applicationVersion: 0,
+      kernelVersion: 0,
+      bootloaderVersion: 0,
+      pcbVersion: 0,
     },
-    parser: parseA2750LDInformation,
   },
-  {
+  REG_LD_INFO_PARTNER: {
     fc: 3,
     address: 62320,
     length: 9,
-    channel: CHANNEL_LD_PARTNER_INFO,
     data: {
-      operationState: "",
-      productCode: "",
-      serialNumber: "",
-      hardwareRevision: "",
-      applicationVersion: "",
-      kernelVersion: "",
-      bootloaderVersion: "",
-      pcbVersion: "",
+      operationState: 0,
+      productCode: 0,
+      serialNumber: 0,
+      hardwareRevision: 0,
+      applicationVersion: 0,
+      kernelVersion: 0,
+      bootloaderVersion: 0,
+      pcbVersion: 0,
     },
-    parser: parseA2750LDInformation,
   },
-  {
+  REG_LM_DI_STATUS: {
+    fc: 1,
+    address: 1001,
+    length: 18,
+    data: {
+      channel1: 0,
+      channel2: 0,
+      channel3: 0,
+      channel4: 0,
+      channel5: 0,
+      channel6: 0,
+      channel7: 0,
+      channel8: 0,
+      channel9: 0,
+      channel10: 0,
+      channel11: 0,
+      channel12: 0,
+      channel13: 0,
+      channel14: 0,
+      channel15: 0,
+      channel16: 0,
+      channel17: 0,
+      channel18: 0,
+    },
+  },
+  REG_LM_DO_STATUS: {
+    fc: 1,
+    address: 1349,
+    length: 9,
+    data: {
+      channel1: 0,
+      channel2: 0,
+      channel3: 0,
+      channel4: 0,
+      channel5: 0,
+      channel6: 0,
+      channel7: 0,
+      channel8: 0,
+      channel9: 0,
+    },
+  },
+  REG_MISSMATCH_ALARM: {
     fc: 1,
     address: 1000,
     length: 1,
-    channel: CHANNEL_LD_MISMATCH_ALARM,
     data: {
-      alarm: 0,
+      state: 0,
     },
-    parser: parseA2750LMMismatchAlarm,
   },
-  {
+  REG_SETUP_LM: {
     fc: 3,
     address: 64010,
-    length: 6,
-    channel: CHANNEL_LM_SETUP,
+    length: 7,
     data: {
+      access: 0,
       operationMode: 0,
       digitalOperation: 0,
       analogDeadband: 0,
-      alarmThreshold: 1,
+      alarmThreshold: 0,
     },
-    parser: parseA2750LMSetup,
   },
+};
+
+export const a2700registerMap = [
   {
     fc: 3,
     address: 62050,
     length: 12,
     channel: SLICE_CHANNEL_IO_INFO,
     slice: true,
-    slice_id : 15,
+    slice_id: 15,
     data: {
       operationState: "", //1w
-      moduleType : "",
+      moduleType: "",
       productCode: 0, // 1w
       serialNumber: 0, // 2w
       hardwareRevision: 1, // 2w

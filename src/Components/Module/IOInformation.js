@@ -6,11 +6,11 @@ import useIpcOn from "../../Hooks/useIpcOn";
 import { SLICE_CHANNEL_IO_INFO } from "../../Modbus/Channel";
 
 function IOInformation(params) {
-  const {id} = params;
-  
+  const { id } = params;
+
   const [information, setInformation] = useState({
     operationState: 0,
-    moduleType : 0,
+    moduleType: 0,
     productCode: 0,
     serialNumber: 0,
     hardwareRevision: 0,
@@ -19,16 +19,13 @@ function IOInformation(params) {
     bootloaderVersion: "0.0.000",
   });
   const channel = `${SLICE_CHANNEL_IO_INFO}_${parseInt(id)}`;
-  console.log(channel);
+
   useIpcOn(channel, (evt, ...args) => {
-    console.log(args);
     setInformation(...args);
   });
   return (
     <ContentBox>
-      <TitleLabel>
-        Accura 2750IO 
-      </TitleLabel>
+      <TitleLabel>Accura 2750IO</TitleLabel>
       <DataContent
         prop="operation state"
         value={information.operationState}
@@ -36,11 +33,10 @@ function IOInformation(params) {
         priority="high"
       ></DataContent>
       <DataContent
-        prop ="module type"
-        value = {information.moduleType}
+        prop="module type"
+        value={information.moduleType}
         invalid={information.moduleType === "Invalid"}
-      >
-      </DataContent>
+      ></DataContent>
       <DataContent
         prop="produrct code"
         value={information.productCode}

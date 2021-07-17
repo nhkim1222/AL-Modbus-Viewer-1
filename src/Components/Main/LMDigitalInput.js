@@ -1,34 +1,33 @@
 import React, { useState } from "react";
 import { ContentBox, TitleLabel } from "../Style";
-import useIpcOn from "../../Hooks/useIpcOn";
+import useIpcOn, { usePolling } from "../../Hooks/useIpcOn";
 import { CHANNEL_LM_DI_STATUS } from "../../Modbus/Channel";
 import { DIContent } from "../DIOContent";
 
 function LMDigitalInput() {
   const [diStatus, setDiStatus] = useState({
-    channel1: "",
-    channel2: "",
-    channel3: "",
-    channel4: "",
-    channel5: "",
-    channel6: "",
-    channel7: "",
-    channel8: "",
-    channel9: "",
-    channel10: "",
-    channel11: "",
-    channel12: "",
-    channel13: "",
-    channel14: "",
-    channel15: "",
-    channel16: "",
-    channel17: "",
-    channel18: "",
+    channel1: false,
+    channel2: false,
+    channel3: false,
+    channel4: false,
+    channel5: false,
+    channel6: false,
+    channel7: false,
+    channel8: false,
+    channel9: false,
+    channel10: false,
+    channel11: false,
+    channel12: false,
+    channel13: false,
+    channel14: false,
+    channel15: false,
+    channel16: false,
+    channel17: false,
+    channel18: false,
   });
 
-  useIpcOn(CHANNEL_LM_DI_STATUS, (evt, ...args) => {
-    setDiStatus(...args);
-  });
+  usePolling("set-lm-di-status", setDiStatus);
+
   return (
     <ContentBox>
       <TitleLabel>Digital Input</TitleLabel>
