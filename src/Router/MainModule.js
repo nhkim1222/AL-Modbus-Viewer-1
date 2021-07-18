@@ -10,11 +10,16 @@ import { map } from "../Modbus/RegisterMap";
 const { ipcRenderer } = window.require("electron");
 
 const Container = styled.div`
-  flex-grow: 1;
+  display: flex;
   padding: 20px;
   overflow-y: auto;
+  flex-direction: column;
 `;
-
+const ContainerChild = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+`;
 function MainModule() {
   useInterval(() => {
     ipcRenderer.send("get-lm-information", false);
@@ -27,12 +32,18 @@ function MainModule() {
 
   return (
     <Container>
-      <LMInformation partner={false} />
-      <LMInformation partner={true} />
-      <LDInformation />
-      <LDInformation partner={true} />
-      <LMDigitalInput />
-      <LMDigitalOutput />
+      <ContainerChild>
+        <LMInformation partner={false} />
+        <LMInformation partner={true} />
+      </ContainerChild>
+      <ContainerChild>
+        <LDInformation />
+        <LDInformation partner={true} />
+      </ContainerChild>
+      <ContainerChild>
+        <LMDigitalInput />
+        <LMDigitalOutput />
+      </ContainerChild>
       {/* <A2750LMSetup /> */}
     </Container>
   );

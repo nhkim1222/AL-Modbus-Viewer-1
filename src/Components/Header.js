@@ -5,13 +5,12 @@ import { withRouter, Link } from "react-router-dom";
 const Container = styled.header`
   color: white;
   padding: 20px;
-  width: 100%;
   height: 50px;
   display: inline-flex;
   align-items: center;
   padding: 0px 10px;
   background-color: rgba(20, 20, 20, 0.8);
-  flex-shrink: 0;
+  flex-grow: 1;
   display: inline-flex;
   box-shadow: 0px 1px 5px 2px rgba(0, 0, 0, 0.8);
 `;
@@ -67,11 +66,28 @@ const Header = withRouter(({ location: { pathname } }) => {
         <Item current={pathname === "/IO/08"}>
           <ItemLink to="/IO/08">IO8</ItemLink>
         </Item>
+        <Item current={pathname === "/IO/09"}>
+          <ItemLink to="/IO/09">IO9</ItemLink>
+        </Item>
+        <Item current={pathname === "/IO/10"}>
+          <ItemLink to="/IO/10">IO10</ItemLink>
+        </Item>
+        <Item current={pathname === "/IO/11"}>
+          <ItemLink to="/IO/11">IO11</ItemLink>
+        </Item>
+        <Item current={pathname === "/IO/12"}>
+          <ItemLink to="/IO/12">IO12</ItemLink>
+        </Item>
+        <Item current={pathname === "/IO/13"}>
+          <ItemLink to="/IO/13">IO13</ItemLink>
+        </Item>
+        <Item current={pathname === "/IO/14"}>
+          <ItemLink to="/IO/14">IO14</ItemLink>
+        </Item>
+        <Item current={pathname === "/IO/15"}>
+          <ItemLink to="/IO/15">IO15</ItemLink>
+        </Item>
       </List>
-      <div>
-        <div>ip</div>
-        <input type="text"></input>
-      </div>
     </Container>
   );
 });

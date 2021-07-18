@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDom from "react-dom";
+import ReactModal from "react-modal";
 import App from "./App";
 
 ReactDom.render(
@@ -8,3 +9,5 @@ ReactDom.render(
   </React.StrictMode>,
   document.getElementById("root")
 );
+
+ReactModal.setAppElement("#root");
