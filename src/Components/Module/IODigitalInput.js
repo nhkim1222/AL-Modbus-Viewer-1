@@ -19,6 +19,7 @@ function IODigitalInput(params) {
     channel10: false,
     channel11: false,
   });
+  
 
   usePolling("set-io-di-status", setDiStatus);
 

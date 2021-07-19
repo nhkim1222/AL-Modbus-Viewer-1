@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
+import { TitleLabel } from "../Style";
 
 const { ipcRenderer } = window.require("electron");
 
@@ -9,11 +10,8 @@ const FormBox = styled.form`
   display: inline-block;
   flex-direction: column;
   justify-content: right;
-  background-color: white;
   align-items: baseline;
-  margin: 10px;
-  border-radius: 5px;
-  padding: 10px;
+  margin: 5px;
 `;
 
 const Label = styled.div`
@@ -21,16 +19,17 @@ const Label = styled.div`
   justify-content: left;
   align-items: center;
   color: grey;
-  width: 100px;
+  width: 50px;
   height: 24px;
   padding-left: 1px;
   font-size: 10px;
+  color: white
 `;
 const Container = styled.div`
   display: flex;
   justify-content: left;
   align-items: center;
-  padding: 5px;
+  padding: 3px;
   border-bottom: 0.5px solid rgba(100, 100, 100, 0.2);
 `;
 const SubmitContainer = styled.div`
@@ -124,6 +123,7 @@ function A2750LMSetup() {
 
   return (
     <FormBox onSubmit={handleSubmit(onSubmit)}>
+      <TitleLabel style={{color: 'white'}}>LM setup</TitleLabel>
       <Container>
         <Label>operation mode</Label>
         <Select name="operationMode" {...register("operationMode")}>

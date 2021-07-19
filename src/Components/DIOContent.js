@@ -12,7 +12,16 @@ const DIValue = styled.div`
   color: ${(props) =>
     props.value === true ? "rgba(104,212,109,1.0)" : "grey"};
 `;
-
+const AIValue = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 5px;
+  width: 100px;
+  height: 24px;
+  color: grey;
+  font-weight: ${(props) => (props.priority === "high" ? 600 : 400)};
+`
 const Container = styled.div`
   display: flex;
   justify-content: left;
@@ -54,3 +63,15 @@ export const DOContent = ({ ch, value, setCommand }) => {
     </Container>
   );
 };
+
+export const AIContent = ({ ch, value }) => {
+  return (
+    <Container>
+      <Title>channel {ch}</Title>
+      <AIValue value={value} priority="high">
+        {value}
+      </AIValue>
+    </Container>
+  );
+};
+

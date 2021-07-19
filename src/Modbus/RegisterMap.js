@@ -185,5 +185,24 @@ export const map = {
       channel11: 0,
       channel12: 0,
     },
-  }
+  },
+  REG_IO_AI_STATUS: {
+    fc: 3,
+    address: 62501,
+    length: 24,
+    data:{
+      channel1: 0,
+      channel2: 0,
+      channel3: 0,
+      channel4: 0,
+      channel5: 0,
+      channel6: 0,
+      channel7: 0,
+      channel8: 0,
+      channel9: 0,
+      channel10: 0,
+      channel11: 0,
+      channel12: 0,
+    },
+  },
 };

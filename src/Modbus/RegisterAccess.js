@@ -301,11 +301,38 @@ const get_io_do_status = async (evt, { io_id }) => {
     evt.reply(replyChannel, information);
   }
 };
+
 const set_io_do_cmd = (evt, { id, ch, value }) => {
   const buf = value;
   if (modbusClient.isOpen) {
     const addr = 1357 + (id - 1) * 12 + ch;
     modbusClient.writeCoil(addr, buf);
+  }
+};
+
+const get_io_ai_status = async (evt, { io_id }) => {
+  if (modbusClient.isOpen) {
+    const { address, length, data: information } = map.REG_IO_AI_STATUS;
+
+    const addr = address + (io_id - 1) * (length-1);
+
+    const replyChannel = "set-io-ai-status";
+    const { data, buffer } = await readRegister(addr, length);
+    
+    information.channel1 = buffer.readFloatBE(0);
+    information.channel2 = buffer.readFloatBE(2);
+    information.channel3 = buffer.readFloatBE(4);
+    information.channel4 = buffer.readFloatBE(6);
+    information.channel5 = buffer.readFloatBE(8);
+    information.channel6 = buffer.readFloatBE(10);
+    information.channel7 = buffer.readFloatBE(12);
+    information.channel8 = buffer.readFloatBE(14);
+    information.channel9 = buffer.readFloatBE(16);
+    information.channel10 = buffer.readFloatBE(18);
+    information.channel11 = buffer.readFloatBE(20);
+    information.channel12 = buffer.readFloatBE(22);
+    
+    evt.reply(replyChannel, information);
   }
 };
 
@@ -323,4 +350,6 @@ export function initRegisterAccess() {
   ipcMain.on("get-io-di-status", get_io_di_status);
   ipcMain.on("get-io-do-status", get_io_do_status);
   ipcMain.on("set-io-do-cmd", set_io_do_cmd);
+  ipcMain.on('get-io-ai-status', get_io_ai_status);
+  
 }

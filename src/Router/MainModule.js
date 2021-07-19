@@ -43,7 +43,6 @@ function MainModule() {
         <LMDigitalInput />
         <LMDigitalOutput />
       </ContainerChild>
-      <A2750LMSetup />
     </Container>
   );
 }

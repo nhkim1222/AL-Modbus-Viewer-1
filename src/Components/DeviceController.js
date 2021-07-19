@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 
 import Modal from 'styled-react-modal'
 import ApplyButton from './ApplyButton'
+import A2750LMSetup from "./Main/LMSetup";
 const { ipcRenderer } = window.require("electron");
 
 const pattern =
@@ -98,6 +99,7 @@ function DeviceController() {
       <InfoLabel>connected device IP</InfoLabel>
       <IpAddress>{ipAddr}</IpAddress>
       <button onClick={openModal}>Change connection</button>
+      <A2750LMSetup/>
       <StyledModal
         isOpen={modelIsOpen}
         onEscapeKeydown={closeModal}
