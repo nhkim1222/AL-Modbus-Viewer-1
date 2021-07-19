@@ -4,7 +4,6 @@ import styled from "styled-components";
 export const ContentBox = styled.div`
   display: inline-block;
   justify-content: left;
-  background-color: white;
   align-items: baseline;
   margin: 10px;
   border-radius: 5px;

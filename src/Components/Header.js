@@ -10,7 +10,6 @@ const Container = styled.header`
   align-items: center;
   padding: 0px 10px;
   background-color: rgba(20, 20, 20, 0.8);
-  flex-grow: 1;
   display: inline-flex;
   box-shadow: 0px 1px 5px 2px rgba(0, 0, 0, 0.8);
 `;

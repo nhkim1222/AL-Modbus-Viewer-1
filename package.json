@@ -2,7 +2,7 @@
   "name": "app01",
   "productName": "app01",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "AL Modbus viewer",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
@@ -86,6 +86,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "jsmodbus": "^4.0.6",
     "modbus-serial": "^8.0.3",
+    "open-color": "^1.8.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.11.0",
@@ -94,6 +95,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.3",
     "styled-components": "^5.3.0",
+    "styled-react-modal": "^2.1.0",
     "styled-reset": "^4.3.4"
   }
 }

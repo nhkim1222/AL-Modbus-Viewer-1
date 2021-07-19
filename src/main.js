@@ -1,6 +1,6 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
-const { connectServer } = require("./Modbus/Connection");
+const { connectServer, initServer } = require("./Modbus/Connection");
 const { initRegisterAccess } = require("./Modbus/RegisterAccess");
 const isDev = require("electron-is-dev");
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -37,6 +37,7 @@ const createWindow = () => {
   });
 
   initRegisterAccess();
+  initServer();
 };
 
 // This method will be called when Electron has finished

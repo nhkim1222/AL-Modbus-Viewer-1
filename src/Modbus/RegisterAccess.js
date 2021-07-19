@@ -26,18 +26,18 @@ const mutex = new Mutex();
 
 const readRegister = async (address, length) => {
   await mutex.acquire();
-  console.log(`[0] address : ${address}, length: ${length}`);
-  const result = await modbusClient.readHoldingRegisters(address, length);
-  console.log(`[1] address : ${address}, length: ${length}`);
+  //console.log(`[0] address : ${address}, length: ${length}`);
+  const result = await modbusClient.readHoldingRegisters(address-1, length);
+  //console.log(`[1] address : ${address}, length: ${length}`);
   await mutex.release();
   return result;
 };
 
 const readCoil = async (address, length) => {
   await mutex.acquire();
-  console.log(`[0] address : ${address}, length: ${length}`);
-  const result = await modbusClient.readCoils(address, length);
-  console.log(`[1] address : ${address}, length: ${length}`);
+  //console.log(`[0] address : ${address}, length: ${length}`);
+  const result = await modbusClient.readCoils(address-1, length);
+  //console.log(`[1] address : ${address}, length: ${length}`);
   await mutex.release();
   return result;
 };
@@ -56,7 +56,9 @@ const setupUnlock = async () => {
  *   : convert the buffer to data object
  */
 const get_lm_information = async (evt, partner) => {
+  
   if (modbusClient.isOpen) {
+  
     const {
       address,
       length,
@@ -66,7 +68,7 @@ const get_lm_information = async (evt, partner) => {
     const replyChannel =
       partner !== true ? "set-lm-information" : "set-lm-information-partner";
     const { data } = await readRegister(address, length);
-
+    
     information.operationState = data[0];
     information.productCode = data[1];
     information.serialNumber = data[2] | (data[3] << 16);
