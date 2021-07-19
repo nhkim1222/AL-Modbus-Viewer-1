@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { set, useForm } from "react-hook-form";
-
+import oc from "open-color";
 import Modal from "styled-react-modal";
 import ApplyButton from "./ApplyButton";
 import A2750LMSetup from "./Main/LMSetup";
@@ -22,6 +22,25 @@ const InfoLabel = styled.label`
   color: #fafafa;
   font-size: 10px;
   margin-bottom: 5px;
+`;
+const fadeIn = keyframes`
+  0%{
+    opacity: 1;
+  }
+  50%{
+    opacity: 0;
+  }
+  100%{
+    oapcity: 1;
+  }
+`;
+const ConnecionState = styled.div`
+  color: #fafafa;
+  font-size: 10px;
+  margin-bottom: 5px;
+  opacity: 1;
+  color: ${(prop) => (prop.connected ? oc.teal[6] : "red")};
+  animation: ${fadeIn} ${(prop) => (prop.connected ? "0s" : "2.5s")} infinite;
 `;
 const IpAddress = styled.label`
   color: white;
@@ -89,7 +108,6 @@ function DeviceController() {
   useEffect(() => {
     ipcRenderer.on("connect-info", (evt, arg) => {
       const { connectState, ip } = arg;
-      console.log(arg);
       if (connectState === true) {
         setState(STATE_CONNECTED);
       } else {
@@ -116,8 +134,8 @@ function DeviceController() {
   useInterval(() => {
     if (state === STATE_DISCONNECTED) {
       console.log("connect... try...");
-      ipcRenderer.send("connect-server", { ip: ipAddr });
       setState(STATE_CONNECTING);
+      ipcRenderer.send("connect-server", { ip: ipAddr });
     } else if (state === STATE_CONNECTED) {
       ipcRenderer.send("get-connect-server-state");
     }
@@ -144,7 +162,9 @@ function DeviceController() {
     <Container>
       <InfoLabel>device IP</InfoLabel>
       <IpAddress>{ipAddr}</IpAddress>
-      <InfoLabel>{StateToDisplay(state)}</InfoLabel>
+      <ConnecionState connected={state === STATE_CONNECTED}>
+        {StateToDisplay(state)}
+      </ConnecionState>
       <ApplyButton onClick={openModal}>Change connection</ApplyButton>
       <LMAlarm></LMAlarm>
       <A2750LMSetup />
