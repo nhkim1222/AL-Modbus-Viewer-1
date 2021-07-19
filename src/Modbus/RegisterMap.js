@@ -122,6 +122,21 @@ export const map = {
       alarmThreshold: 0,
     },
   },
+  REG_IO_INFORMATION: {
+    fc: 3,
+    address: 62050,
+    length: 12,
+    data: {
+      operationState: "", //1w
+      moduleType: "",
+      productCode: 0, // 1w
+      serialNumber: 0, // 2w
+      hardwareRevision: 1, // 2w
+      pcbVersion: "", // 1w
+      applicationVersion: "", // 1w
+      bootloaderVersion: "", // 1w
+    }
+  }
 };
 
 export const a2700registerMap = [

@@ -8,15 +8,6 @@ export async function connectServer({ ip, port }) {
   }
 
   return await modbusClient.connectTCP(ip, { port });
-  // .then(() => {
-  //   console.log(`client [${ip}] connected`);
-
-  //   return true;
-  // })
-  // .catch(() => {
-  //   console.log(`cannot connect to client [${ip}]`);
-  //   return false;
-  // });
 }
 
 export function initServer() {

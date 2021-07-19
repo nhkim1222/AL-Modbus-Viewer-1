@@ -2,9 +2,35 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { DataContent } from "../DataContent";
 import { ContentBox, TitleLabel } from "../Style";
-import useIpcOn from "../../Hooks/useIpcOn";
-import { SLICE_CHANNEL_IO_INFO } from "../../Modbus/Channel";
+import { usePolling } from "../../Hooks/useIpcOn";
 
+const operation_state = (val) => {
+  if (val === 1) return "Bootloader";
+  if (val === 2) return "Application";
+  return "UNIDENIFIED";
+};
+const io_module_type = (val) => {
+  switch (val) {
+    case 0:
+      return "invalid";
+    case 1:
+      return "A2750IO-DI";
+    case 2:
+      return "A2750IO-DO";
+    case 3:
+      return "A2750IO-AI";
+    case 4:
+      return "A2750IO-DI2";
+    case 5:
+      return "A2750IO-DIO";
+    case 6:
+      return "A2750IO-DO2";
+    case 7:
+      return "A2750IO-AIO";
+    case 8:
+      return "A2750IO-AI2";
+  }
+};
 function IOInformation(params) {
   const { id } = params;
 
@@ -18,24 +44,22 @@ function IOInformation(params) {
     applicationVersion: "0.0.000",
     bootloaderVersion: "0.0.000",
   });
-  const channel = `${SLICE_CHANNEL_IO_INFO}_${parseInt(id)}`;
 
-  useIpcOn(channel, (evt, ...args) => {
-    setInformation(...args);
-  });
+  usePolling('set-io-information', setInformation);
+
   return (
     <ContentBox>
       <TitleLabel>Accura 2750IO</TitleLabel>
       <DataContent
         prop="operation state"
-        value={information.operationState}
-        invalid={information.operationState === "UNIDENIFIED"}
+        value={operation_state(information.operationState)}
+        invalid={information.operationState === 0}
         priority="high"
       ></DataContent>
       <DataContent
         prop="module type"
-        value={information.moduleType}
-        invalid={information.moduleType === "Invalid"}
+        value={io_module_type(information.moduleType)}
+        invalid={information.moduleType === 0}
       ></DataContent>
       <DataContent
         prop="produrct code"

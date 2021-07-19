@@ -33,8 +33,8 @@ const DialogContainer = styled.div`
 `;
 
 const StyledModal = Modal.styled`
-  width: 20rem;
-  height: 20rem;
+  width: 200px;
+  height: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -45,15 +45,19 @@ const Input = styled.input`
     border: 1px solid grey;
     outline: none;
     border-radius: 0px;
-    line-height: 2.5rem;
-    font-size: 1.2rem;
+    line-height: 1.2rem;
+    font-size: 12px;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
 `;
 const IPForm = styled.form`
-
+  padding: 10px;
 `
-
+const IPLabel = styled.label`
+  font-size: 10px;
+  font-weight: 600;
+  color: black;
+`
 
 function DeviceController() {
   const [modelIsOpen, setIsOpen] = useState(false);
@@ -96,11 +100,10 @@ function DeviceController() {
       <button onClick={openModal}>Change connection</button>
       <StyledModal
         isOpen={modelIsOpen}
-        onBackgroundClick={closeModal}
         onEscapeKeydown={closeModal}
       >
-          <form onSubmit={handleSubmit(onSubmit, onError)}>
-            <label>ip address</label>
+          <IPForm onSubmit={handleSubmit(onSubmit, onError)}>
+            <IPLabel>ip address</IPLabel>
             <Input
               type="text"
               defaultValue="0.0.0.0"
@@ -115,7 +118,7 @@ function DeviceController() {
             />
 
             <ApplyButton >Apply</ApplyButton>
-          </form>
+          </IPForm>
       </StyledModal>
     </Container>
   );

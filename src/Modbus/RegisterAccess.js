@@ -196,6 +196,33 @@ const set_lm_setup = async (evt, setup) => {
   }
 };
 
+const get_io_information = async (evt, {io_id}) => {
+  if (modbusClient.isOpen) {
+  
+    const {
+      address,
+      length,
+      data: information,
+    } =  map.REG_IO_INFORMATION;
+
+    const addr = address + (io_id-1) * length;
+
+    const replyChannel = "set-io-information";
+    const { data } = await readRegister(addr, length);
+    
+    information.operationState = data[0];
+    information.moduleType = data[1];
+    information.serialNumber = data[2] | (data[3] << 16);
+    information.productCode = data[4];
+    information.applicationVersion = data[5];
+    information.bootloaderVersion = data[6];
+    information.hardwareRevision = data[7];
+    information.pcbVersion = data[8];
+
+    evt.reply(replyChannel, information);
+  }
+};
+
 export function initRegisterAccess() {
   // main process 에서 동작
   ipcMain.on("get-lm-information", get_lm_information);
@@ -205,4 +232,5 @@ export function initRegisterAccess() {
   ipcMain.on("get-lm-do-status", get_lm_do_status);
   ipcMain.on("set-lm-do-cmd", set_lm_do_cmd);
   ipcMain.on("get-lm-setup", get_lm_setup);
+  ipcMain.on('get-io-information', get_io_information);
 }

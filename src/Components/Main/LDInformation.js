@@ -2,7 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { usePolling } from "../../Hooks/useIpcOn";
 import { DataContent } from "../DataContent";
 import { ContentBox, TitleLabel } from "../Style";
-
+const operation_state = (val) => {
+  if (val === 1) return "Bootloader";
+  if (val === 2) return "Application";
+  return "UNIDENIFIED";
+};
 function LDInformation({ partner }) {
   const [information, setInformation] = useState({
     operationState: "UNIDENTIFIED",
@@ -24,7 +28,8 @@ function LDInformation({ partner }) {
       <TitleLabel>Accura 2750LD {partner ? "(PARTNER)" : ""}</TitleLabel>
       <DataContent
         prop="operationState"
-        value={information.operationState}
+        value={operation_state(information.operationState)}
+        invalid={information.operationState === 0}
         priority="high"
       />
       <DataContent

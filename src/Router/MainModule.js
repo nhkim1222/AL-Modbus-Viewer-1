@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import LDInformation from "../Components/Main/LDInformation";
 import LMDigitalInput from "../Components/Main/LMDigitalInput";
 import LMDigitalOutput from "../Components/Main/LMDigitalOutput";
 import LMInformation from "../Components/Main/LMInformation";
-import A2750LMSetup from "../Components/Main/LMSetup";
 import { useInterval } from "../Hooks/useInterval";
-import { map } from "../Modbus/RegisterMap";
 const { ipcRenderer } = window.require("electron");
 
 const Container = styled.div`

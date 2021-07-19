@@ -7,8 +7,8 @@ const Wrapper = styled.input.attrs({
     value: 'Apply'
 })`
     margin-top: 1rem;
-    padding-top: 0.6rem;
-    padding-bottom: 0.5rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
 
     background: ${oc.teal[6]};
     color: white;
@@ -16,7 +16,7 @@ const Wrapper = styled.input.attrs({
     text-align: center;
     font-size: 12px;
     font-weight: 500;
-
+    border: 0px;
     cursor: pointer;
     user-select: none;
     transition: .2s all;
