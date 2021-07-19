@@ -31,7 +31,7 @@ const createWindow = () => {
   }
 
   connectServer({
-    ip: "localhost",
+    ip: "10.10.23.49",
     port: 502,
     webContents: mainWindow.webContents,
   });
