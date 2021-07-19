@@ -27,6 +27,7 @@ function MainModule() {
     ipcRenderer.send("get-ld-information", true);
     ipcRenderer.send("get-lm-di-status");
     ipcRenderer.send("get-lm-do-status");
+    ipcRenderer.send("get-mismatch-alarm");
   }, 1500);
 
   return (

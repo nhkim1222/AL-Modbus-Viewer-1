@@ -28,7 +28,7 @@ const Wrapper = styled.input.attrs({
     &:active {
         background: ${oc.teal[7]};
     }
-
+    margin-bottom: 15px;
 `;
 
 const ApplyButton = ({children, onClick}) => (
