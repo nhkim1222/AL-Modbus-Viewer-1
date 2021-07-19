@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import IODigitalInput from "../Components/Module/IODigitalInput";
+import IODigitalOutput from "../Components/Module/IODigitalOutput";
 import IOInformation from "../Components/Module/IOInformation";
 import { useInterval } from "../Hooks/useInterval";
 const { ipcRenderer } = window.require("electron");
@@ -22,12 +23,14 @@ function IOModule(id) {
   useInterval(() => {
     ipcRenderer.send("get-io-information", {io_id: id.match.params.id});
     ipcRenderer.send("get-io-di-status", {io_id: id.match.params.id});
+    ipcRenderer.send("get-io-do-status", {io_id: id.match.params.id});
   },1500);
 
   return (
     <Container>
       <IOInformation id={id.match.params.id} />
       <IODigitalInput id={id.match.params.id}/>
+      <IODigitalOutput id={id.match.params.id}/>
     </Container>
   );
 }

@@ -137,7 +137,7 @@ export const map = {
       bootloaderVersion: "", // 1w
     }
   },
-  
+
   REG_IO_DI_STATUS: {
     fc: 1,
     address: 1019,
@@ -165,6 +165,25 @@ export const map = {
       channel20: 0,
       channel21: 0,
       channel22: 0,
+    },
+  },
+  REG_IO_DO_STATUS: {
+    fc: 1,
+    address: 1358,
+    length: 12,
+    data: {
+      channel1: 0,
+      channel2: 0,
+      channel3: 0,
+      channel4: 0,
+      channel5: 0,
+      channel6: 0,
+      channel7: 0,
+      channel8: 0,
+      channel9: 0,
+      channel10: 0,
+      channel11: 0,
+      channel12: 0,
     },
   }
 };
