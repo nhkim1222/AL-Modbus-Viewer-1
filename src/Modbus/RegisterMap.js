@@ -136,27 +136,35 @@ export const map = {
       applicationVersion: "", // 1w
       bootloaderVersion: "", // 1w
     }
+  },
+  
+  REG_IO_DI_STATUS: {
+    fc: 1,
+    address: 1019,
+    length: 22,
+    data: {
+      channel1: 0,
+      channel2: 0,
+      channel3: 0,
+      channel4: 0,
+      channel5: 0,
+      channel6: 0,
+      channel7: 0,
+      channel8: 0,
+      channel9: 0,
+      channel10: 0,
+      channel11: 0,
+      channel12: 0,
+      channel13: 0,
+      channel14: 0,
+      channel15: 0,
+      channel16: 0,
+      channel17: 0,
+      channel18: 0,
+      channel19: 0,
+      channel20: 0,
+      channel21: 0,
+      channel22: 0,
+    },
   }
 };
-
-export const a2700registerMap = [
-  {
-    fc: 3,
-    address: 62050,
-    length: 12,
-    channel: SLICE_CHANNEL_IO_INFO,
-    slice: true,
-    slice_id: 15,
-    data: {
-      operationState: "", //1w
-      moduleType: "",
-      productCode: 0, // 1w
-      serialNumber: 0, // 2w
-      hardwareRevision: 1, // 2w
-      pcbVersion: "", // 1w
-      applicationVersion: "", // 1w
-      bootloaderVersion: "", // 1w
-    },
-    parser: parseIOProductInformation,
-  },
-];

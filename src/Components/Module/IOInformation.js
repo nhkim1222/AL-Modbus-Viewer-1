@@ -9,6 +9,7 @@ const operation_state = (val) => {
   if (val === 2) return "Application";
   return "UNIDENIFIED";
 };
+
 const io_module_type = (val) => {
   switch (val) {
     case 0:

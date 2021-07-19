@@ -153,7 +153,7 @@ const get_lm_do_status = async (evt, payload) => {
 const set_lm_do_cmd = (evt, { ch, value }) => {
   const buf = value;
   if (modbusClient.isOpen) {
-    modbusClient.writeCoil(1348 + ch, buf);
+    modbusClient.writeCoil(1347 + ch, buf);
   }
 };
 
@@ -223,6 +223,50 @@ const get_io_information = async (evt, {io_id}) => {
   }
 };
 
+
+const get_io_di_status = async (evt, {io_id}) => {
+  if (modbusClient.isOpen) {
+  
+    const {
+      address,
+      length,
+      data: information,
+    } =  map.REG_IO_DI_STATUS;
+
+    const addr = address + (io_id-1) * length;
+
+    const replyChannel = "set-io-di-status";
+    const { data } = await readCoil(addr, length);
+    
+    information.channel1 = data[0];
+    information.channel2 = data[1];
+    information.channel3 = data[2];
+    information.channel4 = data[3];
+    information.channel5 = data[4];
+    information.channel6 = data[5];
+    information.channel7 = data[6];
+    information.channel8 = data[7];
+    information.channel9 = data[8];
+    information.channel10 = data[9];
+    information.channel11 = data[10];
+    information.channel12 = data[11];
+    information.channel13 = data[12];
+    information.channel14 = data[13];
+    information.channel15 = data[14];
+    information.channel16 = data[15];
+    information.channel17 = data[16];
+    information.channel18 = data[17];
+    information.channel19 = data[18];
+    information.channel20 = data[19];
+    information.channel21 = data[20];
+    information.channel22 = data[21];
+
+    evt.reply(replyChannel, information);
+  }
+};
+
+
+
 export function initRegisterAccess() {
   // main process 에서 동작
   ipcMain.on("get-lm-information", get_lm_information);
@@ -233,4 +277,5 @@ export function initRegisterAccess() {
   ipcMain.on("set-lm-do-cmd", set_lm_do_cmd);
   ipcMain.on("get-lm-setup", get_lm_setup);
   ipcMain.on('get-io-information', get_io_information);
+  ipcMain.on('get-io-di-status', get_io_di_status);
 }
