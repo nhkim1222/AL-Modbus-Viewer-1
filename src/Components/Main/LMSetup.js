@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
 
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import styled from "styled-components";
-import useIpcOn from "../../Hooks/useIpcOn";
-import { CHANNEL_LM_SETUP } from "../../Modbus/Channel";
+
+const { ipcRenderer } = window.require("electron");
 
 const FormBox = styled.form`
   display: inline-block;
@@ -91,52 +91,62 @@ function A2750LMSetup() {
     setValue,
     formState: { errors },
   } = useForm();
-  const onSubmit = (data) => console.log(data);
-
   const [inputs, setInputs] = useState({
     operationMode: 0,
     digitalOperation: 0,
     analogDeadband: 0,
     alarmThreshold: 0,
   });
+
+  useEffect(() => {
+    ipcRenderer.on('set-lm-setup', (evt, args)=> {
+      setValue('operationMode', args.operationMode);
+      setValue('digitalOperation', args.digitalOperation);
+      setValue('analogDeadband', args.analogDeadband);
+      setValue('alarmThreshold', args.alarmThreshold);
+    });
+    ipcRenderer.send('get-lm-setup');
+    return () => {
+      ipcRenderer.removeAllListeners('set-lm-setup');
+    }
+  }, [])
+
+  const onSubmit = (data) =>{
+    ipcRenderer.send('set-lm-setup', data);
+    ipcRenderer.send('get-lm-setup');
+  };
+
+ 
   const operationMode = watch("operationMode");
   const digitalOperation = watch("digitalOperation");
   const analogDeadband = watch("analogDeadband");
   const alarmThreshold = watch("alarmThreshold");
 
-  useIpcOn(CHANNEL_LM_SETUP, (evt, ...args) => {
-    const setup = args;
-    setValue("operationMode", setup.operationMode);
-    setValue("digitalOperation", setup.digitalOperation);
-    setValue("analogDeadband", setup.analogDeadband);
-    setValue("alarmThreshold", setup.alarmThreshold);
-  });
-
   return (
     <FormBox onSubmit={handleSubmit(onSubmit)}>
       <Container>
         <Label>operation mode</Label>
-        <Select name="operationMode" ref={register("operationMode")}>
+        <Select name="operationMode" {...register("operationMode")}>
           <Option value={0}>StandAlone</Option>
           <Option value={1}>2-Active</Option>
         </Select>
       </Container>
       <Container>
         <Label>digital operation</Label>
-        <Select ref={register("digitalOperation")} defaultValue={1}>
+        <Select {...register("digitalOperation")} defaultValue={1}>
           <option value={0}>AND</option>
           <option value={1}>OR </option>
         </Select>
       </Container>
       <Container>
         <Label>analog deadband</Label>
-        <input ref={register("analogDeadband")} defaultValue={0}></input>
+        <input {...register("analogDeadband")} defaultValue={0}></input>
       </Container>
       <Container>
         <Label>alarm threshold</Label>
         <input
           name="alarmThreshold"
-          ref={register("alarmThreshold")}
+          {...register("alarmThreshold")}
           defaultValue={0}
         ></input>
       </Container>

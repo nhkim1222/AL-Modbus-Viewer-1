@@ -61,7 +61,7 @@ const IPLabel = styled.label`
 
 function DeviceController() {
   const [modelIsOpen, setIsOpen] = useState(false);
-  const [ipAddr, setIpAddr] = useState("localhost");
+  const [ipAddr, setIpAddr] = useState("10.10.23.49");
   const { register, handleSubmit, watch, errors } = useForm();
 
   useEffect(() => {
