@@ -30,11 +30,11 @@ const createWindow = () => {
     mainWindow.webContents.openDevTools({ mode: "detach" });
   }
 
-  connectServer({
-    ip: "10.10.23.49",
-    port: 502,
-    webContents: mainWindow.webContents,
-  });
+  // connectServer({
+  //   ip: "10.10.23.49",
+  //   port: 502,
+  //   webContents: mainWindow.webContents,
+  // });
 
   initRegisterAccess();
   initServer();
