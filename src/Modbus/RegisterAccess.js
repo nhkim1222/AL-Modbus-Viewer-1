@@ -305,7 +305,7 @@ const get_io_do_status = async (evt, { io_id }) => {
 const set_io_do_cmd = (evt, { id, ch, value }) => {
   const buf = value;
   if (modbusClient.isOpen) {
-    const addr = 1357 + (id - 1) * 12 + ch;
+    const addr = 1357 + (id-1) * 12 + (ch-1);
     modbusClient.writeCoil(addr, buf);
   }
 };
