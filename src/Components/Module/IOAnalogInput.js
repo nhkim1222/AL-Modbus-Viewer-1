@@ -26,7 +26,7 @@ function IOAnalogInput(params) {
 
   return (
     <ContentBox>
-      <TitleLabel>Digital Input</TitleLabel>
+      <TitleLabel>Analog Input</TitleLabel>
       <AIContent ch={1} value={aiStatus.channel1} />
       <AIContent ch={2} value={aiStatus.channel2} />
       <AIContent ch={3} value={aiStatus.channel3} />
