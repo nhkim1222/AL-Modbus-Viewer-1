@@ -3,18 +3,14 @@ import { ipcMain } from "electron";
 
 export const modbusClient = new ModbusRTU();
 
-const maintainConnection = () => {
-  const timeOut = modbusClient.getTimeout();
-  console.log(timeOut);
-};
-
 export async function connectServer({ ip, port }) {
   if (modbusClient.isOpen) {
     console.log("connect server: isOpened");
     modbusClient.close();
   }
-  maintainConnection();
+
   try {
+    console.log(`try to connect : ${ip}`);
     modbusClient.setTimeout(3000);
     await modbusClient.connectTCP(ip, { port });
     return true;
@@ -24,19 +20,24 @@ export async function connectServer({ ip, port }) {
 }
 
 export function initServer() {
-  ipcMain.on("connect-server", async (evt, arg) => {
+  ipcMain.on("connect-to-server", async (evt, arg) => {
     const { ip } = arg;
-    console.log(ip);
     try {
-      console.log(`connect : ${ip}`);
       const state = await connectServer({ ip, port: 502 });
-      evt.reply("connect-info", { connectState: state, ip });
+      evt.reply("get-connection-result", { connectState: state, ip });
     } catch (err) {
-      evt.reply("connect-info", { connectState: false, ip });
+      console.log(err);
+      evt.reply("get-connection-result", { connectState: false, ip });
     }
   });
 
   ipcMain.on("get-connect-server-state", (evt, arg) => {
     evt.reply("server-connection-state", modbusClient.isOpen);
   });
+
+  ipcMain.on('disconnect-to-server', (evt,callback) => {
+    if(modbusClient.isOpen) {
+      modbusClient.close(callback);
+    }
+  })
 }

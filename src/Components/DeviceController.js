@@ -97,6 +97,7 @@ const StateToDisplay = (state) => {
 const STATE_CONNECTING = 0;
 const STATE_CONNECTED = 1;
 const STATE_DISCONNECTED = 2;
+const STATE_CHANGE_IP = 3;
 
 function DeviceController() {
   const [modelIsOpen, setIsOpen] = useState(false);
@@ -106,7 +107,7 @@ function DeviceController() {
   const { register, handleSubmit, watch, errors } = useForm();
 
   useEffect(() => {
-    ipcRenderer.on("connect-info", (evt, arg) => {
+    ipcRenderer.on("get-connection-result", (evt, arg) => {
       const { connectState, ip } = arg;
       if (connectState === true) {
         setState(STATE_CONNECTED);
@@ -124,29 +125,38 @@ function DeviceController() {
     });
 
     console.log("send connect server");
-    ipcRenderer.send("connect-server", { ip: ipAddr });
+    ipcRenderer.send("connect-to-server", { ip: ipAddr });
     setState(STATE_CONNECTING);
     return () => {
-      ipcRenderer.removeAllListeners("connect-info");
+      ipcRenderer.removeAllListeners("get-connection-result");
     };
   }, []);
 
   useInterval(() => {
+    
+    if (state === STATE_CHANGE_IP) {
+      ipcRenderer.send('disconnect-to-server', ()=> {
+        console.log('disconnected');
+        setState(STATE_DISCONNECTED);
+      });
+      return;
+    }
+
     if (state === STATE_DISCONNECTED) {
-      console.log("connect... try...");
+      console.log("request connect to server. change state..");
       setState(STATE_CONNECTING);
-      ipcRenderer.send("connect-server", { ip: ipAddr });
+      ipcRenderer.send("connect-to-server", { ip: ipAddr });
     } else if (state === STATE_CONNECTED) {
       ipcRenderer.send("get-connect-server-state");
     }
   }, 5000);
 
   const onSubmit = ({ ipAddress }) => {
+    setState(STATE_CHANGE_IP);
     setIpAddr(ipAddress);
     closeModal();
-    ipcRenderer.send("connect-server", { ip: ipAddress });
-    setState(STATE_CONNECTING);
   };
+
   const onError = (error) => {
     console.log(error);
   };

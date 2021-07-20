@@ -63,7 +63,6 @@ const setupUnlock = async () => {
       ADDR_SETUP_LOCK - 1,
       1
     );
-    console.log(read);
     try {
       await modbusClient.writeRegister(ADDR_SETUP_LOCK - 1, 2300);
       await modbusClient.writeRegister(ADDR_SETUP_LOCK - 1, 0);
@@ -77,7 +76,6 @@ const setupUnlock = async () => {
       ADDR_SETUP_LOCK - 1,
       1
     );
-    console.log(data);
     await mutex.release();
   }
 };
@@ -87,7 +85,6 @@ const setupUnlock = async () => {
  *   : convert the buffer to data object
  */
 const get_lm_information = async (evt, partner) => {
-  console.log(`get lm infor ${modbusClient.isOpen}`);
   if (modbusClient.isOpen) {
     try {
       const {
