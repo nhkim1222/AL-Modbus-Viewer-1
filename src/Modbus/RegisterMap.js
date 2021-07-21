@@ -5,7 +5,7 @@ export const map = {
   /** lm register **/
   REG_LM_INFO: {
     fc: 3,
-    address: 62001,
+    address: 63001,
     length: 11,
     data: {
       operationState: 0, //1w
@@ -19,7 +19,7 @@ export const map = {
   },
   REG_LM_INFO_PARTNER: {
     fc: 3,
-    address: 62031,
+    address: 63021,
     length: 11,
     data: {
       operationState: "", //1w
@@ -33,7 +33,7 @@ export const map = {
   },
   REG_LD_INFO: {
     fc: 3,
-    address: 62300,
+    address: 63041,
     length: 9,
     data: {
       operationState: 0,
@@ -48,7 +48,7 @@ export const map = {
   },
   REG_LD_INFO_PARTNER: {
     fc: 3,
-    address: 62320,
+    address: 63061,
     length: 9,
     data: {
       operationState: 0,
@@ -188,7 +188,7 @@ export const map = {
   },
   REG_IO_AI_STATUS: {
     fc: 3,
-    address: 62501,
+    address: 63081,
     length: 24,
     data:{
       channel1: 0,

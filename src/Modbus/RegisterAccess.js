@@ -388,7 +388,7 @@ const get_pc_di_status = async (evt, { pc_id }) => {
     try {
       const { address, length, data: information } = map.REG_PC_DI_STATUS;
 
-      const addr = address + (pc_id - 1) * length;
+      const addr = address + (pc_id - 1) * 33 ;
 
       const replyChannel = "set-pc-di-status";
       const { data } = await readCoil(addr, length);
@@ -413,7 +413,7 @@ const get_pc_do_status = async (evt, { pc_id }) => {
     try {
       const { address, length, data: information } = map.REG_PC_DO_STATUS;
 
-      const addr = address + (pc_id - 1) * length;
+      const addr = address + (pc_id - 1) * 33 ;
 
       const replyChannel = "set-pc-do-status";
       const { data } = await readCoil(addr, length);
@@ -433,7 +433,7 @@ const get_pc_fault_status = async (evt, { pc_id }) => {
     try {
       const { address, length, data: information } = map.REG_PC_FAULT_STATUS;
 
-      const addr = address + (pc_id - 1) *33;
+      const addr = address + (pc_id - 1) * 33;
 
       const replyChannel = "set-pc-fault-status";
       const { data } = await readCoil(addr, length);
@@ -460,7 +460,7 @@ const get_pc_status = async (evt, { pc_id }) => {
     try {
       const { address, length, data: information } = map.REG_PC_STATUS;
 
-      const addr = address + (pc_id - 1) * 33 + length;
+      const addr = address + (pc_id - 1) * 33 ;
 
       const replyChannel = "set-pc-status";
       const { data } = await readCoil(addr, length);
