@@ -63,7 +63,7 @@ export const map = {
   },
   REG_LM_DI_STATUS: {
     fc: 1,
-    address: 1001,
+    address: 2001,
     length: 18,
     data: {
       channel1: 0,
@@ -88,7 +88,7 @@ export const map = {
   },
   REG_LM_DO_STATUS: {
     fc: 1,
-    address: 1349,
+    address: 2349,
     length: 9,
     data: {
       channel1: 0,
@@ -104,7 +104,7 @@ export const map = {
   },
   REG_MISSMATCH_ALARM: {
     fc: 1,
-    address: 1000,
+    address: 2000,
     length: 1,
     data: {
       state: 0,
@@ -140,7 +140,7 @@ export const map = {
 
   REG_IO_DI_STATUS: {
     fc: 1,
-    address: 1019,
+    address: 2019,
     length: 22,
     data: {
       channel1: 0,
@@ -169,7 +169,7 @@ export const map = {
   },
   REG_IO_DO_STATUS: {
     fc: 1,
-    address: 1358,
+    address: 2358,
     length: 12,
     data: {
       channel1: 0,
@@ -203,6 +203,65 @@ export const map = {
       channel10: 0,
       channel11: 0,
       channel12: 0,
+    },
+  },
+  REG_PC_DI_STATUS: {
+    fc: 1,
+    address: 9,
+    length: 10,
+    data: {
+      channel1: 0,
+      channel2: 0,
+      channel3: 0,
+      channel4: 0,
+      channel5: 0,
+      channel6: 0,
+      channel7: 0,
+      channel8: 0,
+      channel9: 0,
+      channel10: 0,
+    },
+  },
+  REG_PC_DO_STATUS: {
+    fc: 1,
+    address: 19,
+    length: 4,
+    data: {
+      channel1: 0,
+      channel2: 0,
+      channel3: 0,
+      channel4: 0,
+    },
+  },
+  REG_PC_FAULT_STATUS: {
+    fc: 1,
+    address: 23,
+    length: 11,
+    data: {
+      ocr: 0,
+      thr: 0,
+      pocr: 0,
+      psr: 0,
+      ubcr:0,
+      jam:0,
+      lsr: 0,
+      grzct: 0,
+      grct: 0,
+      ucr: 0,
+      externalalarm: 0,
+    },
+  },
+  REG_PC_STATUS: {
+    fc: 1,
+    address: 3,
+    length: 6,
+    data: {
+      startingblock: 0,
+      operationState: 0,
+      remotemode: 0,
+      abnormal: 0,
+      alarm:0,
+      fault:0,
     },
   },
 };

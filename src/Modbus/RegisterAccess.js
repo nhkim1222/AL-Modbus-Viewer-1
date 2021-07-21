@@ -191,7 +191,7 @@ const set_lm_do_cmd = (evt, { ch, value }) => {
   const buf = value;
   if (modbusClient.isOpen) {
     try {
-      modbusClient.writeCoil(1347 + ch, buf);
+      modbusClient.writeCoil(2347 + ch, buf);
     } catch (err) {}
   }
 };
@@ -227,6 +227,7 @@ const set_lm_setup = async (evt, setup) => {
   if (modbusClient.isOpen) {
     try {
       const { address, length } = map.REG_SETUP_LM;
+      console.log("setup lock");
       setupUnlock();
       const buffer = [
         setup.operationMode,
@@ -237,10 +238,14 @@ const set_lm_setup = async (evt, setup) => {
         (setup.alarmThreshold >> 16) & 0xffff,
       ];
       await mutex.acquire();
-      modbusClient.writeRegisters(address, buffer);
-      modbusClient.writeRegister(address - 1, 1); // access write
-      await mutex.release();
-    } catch (err) {}
+      console.log("setup lm1");
+      await modbusClient.writeRegisters(address, buffer);
+      await modbusClient.writeRegister(address - 1, 1); // access write
+      console.log("setup lm2");
+      mutex.release();
+    } catch (err) {
+      console.log(err);
+    }
   }
 };
 
@@ -335,11 +340,18 @@ const get_io_do_status = async (evt, { io_id }) => {
   }
 };
 
-const set_io_do_cmd = (evt, { id, ch, value }) => {
+const set_io_do_cmd = async (evt, { id, ch, value }) => {
   const buf = value;
   if (modbusClient.isOpen) {
-    const addr = 1357 + (id - 1) * 12 + (ch - 1);
-    modbusClient.writeCoil(addr, buf);
+    try{
+      await mutex.acquire();
+      const addr = 2357 + (id - 1) * 12 + (ch - 1);
+      await modbusClient.writeCoil(addr, buf);
+      mutex.release();
+    }
+    catch(err) {
+
+    }
   }
 };
 
@@ -371,6 +383,118 @@ const get_io_ai_status = async (evt, { io_id }) => {
   }
 };
 
+const get_pc_di_status = async (evt, { pc_id }) => {
+  if (modbusClient.isOpen) {
+    try {
+      const { address, length, data: information } = map.REG_PC_DI_STATUS;
+
+      const addr = address + (pc_id - 1) * length;
+
+      const replyChannel = "set-pc-di-status";
+      const { data } = await readCoil(addr, length);
+      information.channel1 = data[0];
+      information.channel2 = data[1];
+      information.channel3 = data[2];
+      information.channel4 = data[3];
+      information.channel5 = data[4];
+      information.channel6 = data[5];
+      information.channel7 = data[6];
+      information.channel8 = data[7];
+      information.channel9 = data[8];
+      information.channel10 = data[9];
+
+      evt.reply(replyChannel, information);
+    } catch (err) {}
+  }
+};
+
+const get_pc_do_status = async (evt, { pc_id }) => {
+  if (modbusClient.isOpen) {
+    try {
+      const { address, length, data: information } = map.REG_PC_DO_STATUS;
+
+      const addr = address + (pc_id - 1) * length;
+
+      const replyChannel = "set-pc-do-status";
+      const { data } = await readCoil(addr, length);
+
+      information.channel1 = data[0];
+      information.channel2 = data[1];
+      information.channel3 = data[2];
+      information.channel4 = data[3];
+
+      evt.reply(replyChannel, information);
+    } catch (err) {}
+  }
+};
+
+const get_pc_fault_status = async (evt, { pc_id }) => {
+  if (modbusClient.isOpen) {
+    try {
+      const { address, length, data: information } = map.REG_PC_FAULT_STATUS;
+
+      const addr = address + (pc_id - 1) *33;
+
+      const replyChannel = "set-pc-fault-status";
+      const { data } = await readCoil(addr, length);
+
+      information.ocr = data[0];
+      information.thr = data[1];
+      information.pocr = data[2];
+      information.psr = data[3];
+      information.ubcr = data[4];
+      information.jam = data[5];
+      information.lsr = data[6];
+      information.grzct = data[7];
+      information.grct = data[8];
+      information.ucr = data[9];
+      information.externalalarm = data[10];
+
+      console.log(`id : ${pc_id} addr: ${addr}, data: ${information.externalalarm} , length :${length}`);
+      evt.reply(replyChannel, information);
+    } catch (err) {}
+  }
+};
+const get_pc_status = async (evt, { pc_id }) => {
+  if (modbusClient.isOpen) {
+    try {
+      const { address, length, data: information } = map.REG_PC_STATUS;
+
+      const addr = address + (pc_id - 1) * 33 + length;
+
+      const replyChannel = "set-pc-status";
+      const { data } = await readCoil(addr, length);
+
+      information.startingblock = data[0];
+      information.operationState = data[1];
+      information.remotemode = data[2];
+      information.abnormal = data[3];
+      information.alarm = data[4];
+      information.fault = data[5];
+
+      evt.reply(replyChannel, information);
+    } catch (err) {}
+  }
+};
+const set_pc_do_cmd = async (evt, { id, ch, value }) => {
+  const buf = value;
+  console.log(buf);
+  console.log("set pc do cmd1");
+  if (modbusClient.isOpen) {
+    console.log("set pc do cmd2");
+    try{
+      await mutex.acquire();
+      
+    console.log("set pc do cmd3");
+      const addr = 1 + (id - 1) * 33 + (ch - 1);
+      await modbusClient.writeCoil(addr - 1, buf);
+      mutex.release();
+    }
+    catch(err) {
+      console.log(err);
+    }
+  }
+};
 export function initRegisterAccess() {
   // main process 에서 동작
   ipcMain.on("get-lm-information", get_lm_information);
@@ -386,4 +510,9 @@ export function initRegisterAccess() {
   ipcMain.on("get-io-do-status", get_io_do_status);
   ipcMain.on("set-io-do-cmd", set_io_do_cmd);
   ipcMain.on("get-io-ai-status", get_io_ai_status);
+  ipcMain.on("get-pc-di-status", get_pc_di_status);
+  ipcMain.on("get-pc-do-status", get_pc_do_status);
+  ipcMain.on("get-pc-falut-status", get_pc_fault_status);
+  ipcMain.on("set-pc-do-cmd", set_pc_do_cmd);
+  ipcMain.on("get-pc-status", get_pc_status);
 }

@@ -101,7 +101,7 @@ const STATE_CHANGE_IP = 3;
 
 function DeviceController() {
   const [modelIsOpen, setIsOpen] = useState(false);
-  const [ipAddr, setIpAddr] = useState("10.10.23.49");
+  const [ipAddr, setIpAddr] = useState("10.10.23.48");
   const [state, setState] = useState(STATE_DISCONNECTED);
 
   const { register, handleSubmit, watch, errors } = useForm();
@@ -111,6 +111,7 @@ function DeviceController() {
       const { connectState, ip } = arg;
       if (connectState === true) {
         setState(STATE_CONNECTED);
+        ipcRenderer.send('get-lm-setup');
       } else {
         console.log("disconnected..");
         setState(STATE_DISCONNECTED);

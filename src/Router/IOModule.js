@@ -26,8 +26,9 @@ function IOModule(id) {
     ipcRenderer.send("get-io-information", { io_id: id.match.params.id });
     ipcRenderer.send("get-io-di-status", { io_id: id.match.params.id });
     ipcRenderer.send("get-io-do-status", { io_id: id.match.params.id });
-    ipcRenderer.send("get-io-ai-status", { io_id: id.match.params.id });
-  }, 1500);
+    //ipcRenderer.send("get-io-ai-status", { io_id: id.match.params.id });    
+    ipcRenderer.send("get-mismatch-alarm");
+  }, 300);
 
   const [info, setInformation] = useState({
     operationMode: 0,

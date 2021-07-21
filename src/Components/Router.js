@@ -2,6 +2,7 @@ import React from "react";
 import { HashRouter, Route, Switch, Redirect } from "react-router-dom";
 import styled from "styled-components";
 import IOModule from "../Router/IOModule";
+import PCModule from "../Router/PCModule";
 import MainModule from "../Router/MainModule";
 import DeviceController from "./DeviceController";
 import Header from "./Header";
@@ -58,6 +59,7 @@ function Router() {
         <Header></Header>
         <Switch>
           <Route path="/" exact component={MainModule} />
+          <Route path="/PC/:id" component={PCModule} />
           <Route path="/IO/:id" component={IOModule} />
           <Redirect from="*" to="/" />
         </Switch>

@@ -38,6 +38,12 @@ const Header = withRouter(({ location: { pathname } }) => {
   return (
     <Container>
       <List>
+        <Item current={pathname === "/PC/01"}>
+          <ItemLink to="/PC/01">PC1</ItemLink>
+        </Item>
+        <Item current={pathname === "/PC/02"}>
+          <ItemLink to="/PC/02">PC2</ItemLink>
+        </Item>
         <Item current={pathname === "/"}>
           <ItemLink to="/">LM</ItemLink>
         </Item>

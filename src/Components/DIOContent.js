@@ -75,3 +75,32 @@ export const AIContent = ({ ch, value }) => {
   );
 };
 
+export const FAULTContent = ({ ch, value, }) => {
+  return (
+    <Container>
+      <Title>fault {ch}</Title>
+      <DIValue value={value} priority="high">
+        {value ? "Fault" : "-"}
+      </DIValue>
+    </Container>
+  );
+};
+export const PCDOContent = ({ ch, value, setCommand }) => {
+  return (
+    <Container>
+      <Title>channel {ch}</Title>
+      <DIValue value={value} priority="high">
+        {value === true ? "Close" : "Open"}
+      </DIValue>
+    </Container>
+  );
+};
+export const CMDContent = ({ name, ch, value, setCommand }) => {
+  return (
+    <Container>
+      <Title>{name}</Title>
+      <button onClick={() => setCommand({ ch, value })}>set</button>
+    </Container>
+  );
+};
+

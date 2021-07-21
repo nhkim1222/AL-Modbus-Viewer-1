@@ -11,7 +11,7 @@ export async function connectServer({ ip, port }) {
 
   try {
     console.log(`try to connect : ${ip}`);
-    modbusClient.setTimeout(3000);
+    modbusClient.setTimeout(5000);
     await modbusClient.connectTCP(ip, { port });
     return true;
   } catch (err) {
