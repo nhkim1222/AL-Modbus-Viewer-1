@@ -124,7 +124,7 @@ export const map = {
   },
   REG_IO_INFORMATION: {
     fc: 3,
-    address: 62050,
+    address: 63081,
     length: 12,
     data: {
       operationState: "", //1w
@@ -188,7 +188,7 @@ export const map = {
   },
   REG_IO_AI_STATUS: {
     fc: 3,
-    address: 63081,
+    address: 63261,
     length: 24,
     data:{
       channel1: 0,
