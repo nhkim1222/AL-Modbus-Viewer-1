@@ -24,6 +24,13 @@ Array.prototype.ToIntReverse = (index) => {
 };
 const mutex = new Mutex();
 
+const handleError = (evt, err) => {
+  console.log(err);
+  modbusClient.close(() => {
+    console.log("close callback executed");
+    evt.reply("error-disconnected");
+  });
+};
 const readRegister = async (address, length) => {
   if (modbusClient.isOpen) {
     await mutex.acquire();
@@ -69,14 +76,9 @@ const setupUnlock = async () => {
       await modbusClient.writeRegister(ADDR_SETUP_LOCK - 1, 700);
       await modbusClient.writeRegister(ADDR_SETUP_LOCK - 1, 1);
     } catch (err) {
-      console.log(err);
+      handleError(evt);
     }
-
-    const { data } = await modbusClient.readHoldingRegisters(
-      ADDR_SETUP_LOCK - 1,
-      1
-    );
-    await mutex.release();
+    mutex.release();
   }
 };
 
@@ -107,7 +109,7 @@ const get_lm_information = async (evt, partner) => {
 
       evt.reply(replyChannel, information);
     } catch (error) {
-      console.log(error);
+      handleError(evt);
     }
   }
 };
@@ -135,7 +137,9 @@ const get_ld_information = async (evt, payload) => {
       information.bootloaderVersion = data[7];
       information.pcbVersion = data[8];
       evt.reply(replyChannel, information);
-    } catch (err) {}
+    } catch (err) {
+      handleError(evt);
+    }
   }
 };
 
@@ -163,7 +167,9 @@ const get_lm_di_status = async (evt, payload) => {
       diStatus.channel17 = data[16];
       diStatus.channel18 = data[17];
       evt.reply("set-lm-di-status", diStatus);
-    } catch (error) {}
+    } catch (error) {
+      handleError(evt);
+    }
   }
 };
 
@@ -183,7 +189,9 @@ const get_lm_do_status = async (evt, payload) => {
       doStatus.channel8 = data[7];
       doStatus.channel9 = data[8];
       evt.reply("set-lm-do-status", doStatus);
-    } catch (err) {}
+    } catch (err) {
+      handleError(evt);
+    }
   }
 };
 
@@ -192,7 +200,9 @@ const set_lm_do_cmd = (evt, { ch, value }) => {
   if (modbusClient.isOpen) {
     try {
       modbusClient.writeCoil(2347 + ch, buf);
-    } catch (err) {}
+    } catch (err) {
+      handleError(evt);
+    }
   }
 };
 
@@ -204,7 +214,9 @@ const get_mismatch_alarm = async (evt, payload) => {
       alarm.state = data[0];
 
       evt.reply("set-mismatch-alarm", alarm);
-    } catch (err) {}
+    } catch (err) {
+      handleError(evt);
+    }
   }
 };
 
@@ -219,7 +231,9 @@ const get_lm_setup = async (evt, payload) => {
       setup.analogDeadband = data[3] | (data[4] << 16);
       setup.alarmThreshold = data[5] | (data[6] << 16);
       evt.reply("set-lm-setup", setup);
-    } catch (error) {}
+    } catch (error) {
+      handleError(evt);
+    }
   }
 };
 
@@ -244,7 +258,7 @@ const set_lm_setup = async (evt, setup) => {
       console.log("setup lm2");
       mutex.release();
     } catch (err) {
-      console.log(err);
+      handleError(evt);
     }
   }
 };
@@ -269,7 +283,9 @@ const get_io_information = async (evt, { io_id }) => {
       information.pcbVersion = data[8];
 
       evt.reply(replyChannel, information);
-    } catch (err) {}
+    } catch (err) {
+      handleError(evt);
+    }
   }
 };
 
@@ -307,7 +323,9 @@ const get_io_di_status = async (evt, { io_id }) => {
       information.channel22 = data[21];
 
       evt.reply(replyChannel, information);
-    } catch (err) {}
+    } catch (err) {
+      handleError(evt);
+    }
   }
 };
 
@@ -336,21 +354,22 @@ const get_io_do_status = async (evt, { io_id }) => {
       information.channel13 = data[12];
 
       evt.reply(replyChannel, information);
-    } catch (err) {}
+    } catch (err) {
+      handleError(evt);
+    }
   }
 };
 
 const set_io_do_cmd = async (evt, { id, ch, value }) => {
   const buf = value;
   if (modbusClient.isOpen) {
-    try{
+    try {
       await mutex.acquire();
       const addr = 2357 + (id - 1) * 12 + (ch - 1);
       await modbusClient.writeCoil(addr, buf);
       mutex.release();
-    }
-    catch(err) {
-
+    } catch (err) {
+      handleError(evt);
     }
   }
 };
@@ -380,7 +399,7 @@ const get_io_ai_status = async (evt, { io_id }) => {
 
       evt.reply(replyChannel, information);
     } catch (err) {
-      console.log(err);
+      evt.reply("error-disconnected");
     }
   }
 };
@@ -390,7 +409,7 @@ const get_pc_di_status = async (evt, { pc_id }) => {
     try {
       const { address, length, data: information } = map.REG_PC_DI_STATUS;
 
-      const addr = address + (pc_id - 1) * 33 ;
+      const addr = address + (pc_id - 1) * 33;
 
       const replyChannel = "set-pc-di-status";
       const { data } = await readCoil(addr, length);
@@ -406,7 +425,9 @@ const get_pc_di_status = async (evt, { pc_id }) => {
       information.channel10 = data[9];
 
       evt.reply(replyChannel, information);
-    } catch (err) {}
+    } catch (err) {
+      handleError(evt);
+    }
   }
 };
 
@@ -415,7 +436,7 @@ const get_pc_do_status = async (evt, { pc_id }) => {
     try {
       const { address, length, data: information } = map.REG_PC_DO_STATUS;
 
-      const addr = address + (pc_id - 1) * 33 ;
+      const addr = address + (pc_id - 1) * 33;
 
       const replyChannel = "set-pc-do-status";
       const { data } = await readCoil(addr, length);
@@ -426,7 +447,9 @@ const get_pc_do_status = async (evt, { pc_id }) => {
       information.channel4 = data[3];
 
       evt.reply(replyChannel, information);
-    } catch (err) {}
+    } catch (err) {
+      handleError(evt);
+    }
   }
 };
 
@@ -452,8 +475,13 @@ const get_pc_fault_status = async (evt, { pc_id }) => {
       information.ucr = data[9];
       information.externalalarm = data[10];
 
+      console.log(
+        `id : ${pc_id} addr: ${addr}, data: ${information.externalalarm} , length :${length}`
+      );
       evt.reply(replyChannel, information);
-    } catch (err) {}
+    } catch (err) {
+      handleError(evt);
+    }
   }
 };
 const get_pc_status = async (evt, { pc_id }) => {
@@ -461,7 +489,7 @@ const get_pc_status = async (evt, { pc_id }) => {
     try {
       const { address, length, data: information } = map.REG_PC_STATUS;
 
-      const addr = address + (pc_id - 1) * 33 ;
+      const addr = address + (pc_id - 1) * 33;
 
       const replyChannel = "set-pc-status";
       const { data } = await readCoil(addr, length);
@@ -474,7 +502,9 @@ const get_pc_status = async (evt, { pc_id }) => {
       information.fault = data[5];
 
       evt.reply(replyChannel, information);
-    } catch (err) {}
+    } catch (err) {
+      handleError(evt);
+    }
   }
 };
 const get_pc_ai_status = async (evt, { pc_id }) => {
@@ -506,16 +536,15 @@ const set_pc_do_cmd = async (evt, { id, ch, value }) => {
   console.log("set pc do cmd1");
   if (modbusClient.isOpen) {
     console.log("set pc do cmd2");
-    try{
+    try {
       await mutex.acquire();
-      
-    console.log("set pc do cmd3");
+
+      console.log("set pc do cmd3");
       const addr = 1 + (id - 1) * 33 + (ch - 1);
       await modbusClient.writeCoil(addr - 1, buf);
       mutex.release();
-    }
-    catch(err) {
-      console.log(err);
+    } catch (err) {
+      handleError(evt);
     }
   }
 };

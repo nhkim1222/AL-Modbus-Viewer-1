@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import IODigitalInput from "../Components/Module/IODigitalInput";
 import IODigitalOutput from "../Components/Module/IODigitalOutput";
@@ -22,6 +22,17 @@ const ContainerChild = styled.div`
 `;
 
 function IOModule(id) {
+  const [connected, setConnected] = useState(false);
+
+  useEffect(() => {
+    ipcRenderer.on("server-connection-state", (evt, isConnected) => {
+      if (isConnected === false) {
+        setConnected(false);
+      } else {
+        setConnected(true);
+      }
+    });
+  }, []);
   useInterval(() => {
     ipcRenderer.send("get-io-information", { io_id: id.match.params.id });
     ipcRenderer.send("get-io-di-status", { io_id: id.match.params.id });

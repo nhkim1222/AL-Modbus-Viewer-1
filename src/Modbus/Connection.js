@@ -24,10 +24,10 @@ export function initServer() {
     const { ip } = arg;
     try {
       const state = await connectServer({ ip, port: 502 });
-      evt.reply("get-connection-result", { connectState: state, ip });
+      evt.reply("resp-connect-to-server", { connectState: state, ip });
     } catch (err) {
       console.log(err);
-      evt.reply("get-connection-result", { connectState: false, ip });
+      evt.reply("resp-connect-to-server", { connectState: false, ip });
     }
   });
 
@@ -35,9 +35,9 @@ export function initServer() {
     evt.reply("server-connection-state", modbusClient.isOpen);
   });
 
-  ipcMain.on('disconnect-to-server', (evt,callback) => {
-    if(modbusClient.isOpen) {
+  ipcMain.on("disconnect-to-server", (evt, callback) => {
+    if (modbusClient.isOpen) {
       modbusClient.close(callback);
     }
-  })
+  });
 }

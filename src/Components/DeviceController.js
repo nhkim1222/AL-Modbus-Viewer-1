@@ -81,23 +81,24 @@ const IPLabel = styled.label`
   color: black;
 `;
 
+const STATE_CONNECTED = 1;
+const STATE_DISCONNECTED = 2;
+const STATE_CHANGE_IP = 3;
+const STATE_REQUEST_CONNECT = 4;
+const STATE_RECV_SERVER_RESP = 5;
+
 const StateToDisplay = (state) => {
   switch (state) {
-    case 0:
-      return "CONNECTING...";
-    case 1:
+    case STATE_CONNECTED:
       return "CONNECTED";
-    case 2:
+    case STATE_DISCONNECTED:
       return "DISCONNECTED";
+    case STATE_REQUEST_CONNECT:
+      return "try to connect";
     default:
       return "INVALID";
   }
 };
-
-const STATE_CONNECTING = 0;
-const STATE_CONNECTED = 1;
-const STATE_DISCONNECTED = 2;
-const STATE_CHANGE_IP = 3;
 
 function DeviceController() {
   const [modelIsOpen, setIsOpen] = useState(false);
@@ -107,11 +108,11 @@ function DeviceController() {
   const { register, handleSubmit, watch, errors } = useForm();
 
   useEffect(() => {
-    ipcRenderer.on("get-connection-result", (evt, arg) => {
+    ipcRenderer.on("resp-connect-to-server", (evt, arg) => {
       const { connectState, ip } = arg;
       if (connectState === true) {
         setState(STATE_CONNECTED);
-        ipcRenderer.send('get-lm-setup');
+        ipcRenderer.send("get-lm-setup");
       } else {
         console.log("disconnected..");
         setState(STATE_DISCONNECTED);
@@ -125,35 +126,36 @@ function DeviceController() {
       }
     });
 
+    ipcRenderer.on("error-disconnected", (evt, args) => {
+      setState(STATE_DISCONNECTED);
+    });
+
     console.log("send connect server");
+    // try to connect modbus server
+    setState(STATE_REQUEST_CONNECT);
     ipcRenderer.send("connect-to-server", { ip: ipAddr });
-    setState(STATE_CONNECTING);
+
     return () => {
       ipcRenderer.removeAllListeners("get-connection-result");
     };
   }, []);
 
   useInterval(() => {
-    
-    if (state === STATE_CHANGE_IP) {
-      ipcRenderer.send('disconnect-to-server', ()=> {
-        console.log('disconnected');
-        setState(STATE_DISCONNECTED);
-      });
+    if (state === STATE_CONNECTED) {
+      ipcRenderer.send("get-connect-server-state");
       return;
     }
 
     if (state === STATE_DISCONNECTED) {
       console.log("request connect to server. change state..");
-      setState(STATE_CONNECTING);
+      setState(STATE_REQUEST_CONNECT);
       ipcRenderer.send("connect-to-server", { ip: ipAddr });
-    } else if (state === STATE_CONNECTED) {
-      ipcRenderer.send("get-connect-server-state");
     }
   }, 5000);
 
   const onSubmit = ({ ipAddress }) => {
-    setState(STATE_CHANGE_IP);
+    setState(STATE_REQUEST_CONNECT);
+    ipcRenderer.send("connect-to-server", { ip: ipAddr });
     setIpAddr(ipAddress);
     closeModal();
   };
@@ -161,6 +163,7 @@ function DeviceController() {
   const onError = (error) => {
     console.log(error);
   };
+
   const openModal = () => {
     setIsOpen(true);
   };
