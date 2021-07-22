@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const { connectServer, initServer } = require("./Modbus/Connection");
 const { initRegisterAccess } = require("./Modbus/RegisterAccess");

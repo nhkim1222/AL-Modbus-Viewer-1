@@ -35,13 +35,7 @@ function MainModule() {
 
   useInterval(() => {
     if (connected) {
-      ipcRenderer.send("get-lm-information", false);
-      ipcRenderer.send("get-lm-information", true);
-      ipcRenderer.send("get-ld-information", false);
-      ipcRenderer.send("get-ld-information", true);
-      ipcRenderer.send("get-lm-di-status");
-      ipcRenderer.send("get-lm-do-status");
-      ipcRenderer.send("get-mismatch-alarm");
+      ipcRenderer.send("request-lm-data", false);
     }
   }, 1500);
 

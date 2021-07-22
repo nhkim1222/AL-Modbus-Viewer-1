@@ -104,7 +104,7 @@ function DeviceController() {
   const [modelIsOpen, setIsOpen] = useState(false);
   const [ipAddr, setIpAddr] = useState("10.10.20.207");
   const [state, setState] = useState(STATE_DISCONNECTED);
-
+  const [serialList, setSerialList] = useState([]);
   const { register, handleSubmit, watch, errors } = useForm();
 
   useEffect(() => {
@@ -129,12 +129,14 @@ function DeviceController() {
     ipcRenderer.on("error-disconnected", (evt, args) => {
       setState(STATE_DISCONNECTED);
     });
-
+    ipcRenderer.on("resp-serial-list", (evt, paths) => {
+      setSerialList(paths);
+    });
     console.log("send connect server");
     // try to connect modbus server
     setState(STATE_REQUEST_CONNECT);
     ipcRenderer.send("connect-to-server", { ip: ipAddr });
-
+    ipcRenderer.send("get-serial-list");
     return () => {
       ipcRenderer.removeAllListeners("get-connection-result");
     };
@@ -155,7 +157,7 @@ function DeviceController() {
 
   const onSubmit = ({ ipAddress }) => {
     setState(STATE_REQUEST_CONNECT);
-    ipcRenderer.send("connect-to-server", { ip: ipAddr });
+    ipcRenderer.send("connect-to-server", { ip: ipAddress });
     setIpAddr(ipAddress);
     closeModal();
   };
@@ -182,6 +184,11 @@ function DeviceController() {
       <ApplyButton onClick={openModal}>Change connection</ApplyButton>
       <LMAlarm></LMAlarm>
       <A2750LMSetup />
+      <select>
+        {serialList.map((path) => (
+          <option value={(path.id, path.key)}>{path.key}</option>
+        ))}
+      </select>
       <StyledModal isOpen={modelIsOpen} onEscapeKeydown={closeModal}>
         <IPForm onSubmit={handleSubmit(onSubmit, onError)}>
           <IPLabel>ip address</IPLabel>
