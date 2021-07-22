@@ -155,7 +155,7 @@ function DeviceController() {
 
   const onSubmit = ({ ipAddress }) => {
     setState(STATE_REQUEST_CONNECT);
-    ipcRenderer.send("connect-to-server", { ip: ipAddr });
+    ipcRenderer.send("connect-to-server", { ip: ipAddress });
     setIpAddr(ipAddress);
     closeModal();
   };
