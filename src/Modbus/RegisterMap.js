@@ -188,7 +188,7 @@ export const map = {
   },
   REG_IO_AI_STATUS: {
     fc: 3,
-    address: 63261,
+    address: 63271,
     length: 24,
     data:{
       channel1: 0,
@@ -262,6 +262,17 @@ export const map = {
       abnormal: 0,
       alarm:0,
       fault:0,
+    },
+  },
+  REG_PC_AI_STATUS: {
+    fc: 3,
+    address: 45001,
+    length: 8,
+    data:{
+      avgcurrent: 0,
+      activepower: 0,
+      powerfactor: 0,
+      ratingcurrent: 0,
     },
   },
 };

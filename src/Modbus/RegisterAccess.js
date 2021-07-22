@@ -3,6 +3,7 @@ import { modbusClient } from "./Connection";
 import { map } from "./RegisterMap";
 import Mutex from "../Hooks/Mutex";
 
+const debug = false;
 /* utility functions */
 Array.prototype.ToShort = (index) => {
   // javascript standard include object Number
@@ -26,39 +27,31 @@ const mutex = new Mutex();
 
 const handleError = (evt, err) => {
   console.log(err);
-  modbusClient.close(() => {
-    console.log("close callback executed");
-    evt.reply("error-disconnected");
-  });
+  // modbusClient.close(() => {
+  //   console.log("close callback executed");
+  //   evt.reply("error-disconnected");
+  // });
 };
+
 const readRegister = async (address, length) => {
-  if (modbusClient.isOpen) {
-    await mutex.acquire();
-    //console.log(`[0] address : ${address}, length: ${length}`);
-    try {
-      const result = await modbusClient.readHoldingRegisters(
-        address - 1,
-        length
-      );
-      mutex.release();
-      return result;
-    } catch (err) {
-      console.log(err);
-      mutex.release();
-      return null;
-    }
-  }
+  await mutex.acquire();
+  if (debug) console.log(`[${address}] req len: ${length}`);
+
+  const result = await modbusClient.readHoldingRegisters(address - 1, length);
+
+  if (debug) console.log(`[${address}] resp`);
+
+  mutex.release();
+  return result;
 };
 
 const readCoil = async (address, length) => {
-  if (modbusClient.isOpen) {
-    await mutex.acquire();
-    //console.log(`[0] address : ${address}, length: ${length}`);
-    const result = await modbusClient.readCoils(address - 1, length);
-    //console.log(`[1] address : ${address}, length: ${length}`);
-    mutex.release();
-    return result;
-  }
+  await mutex.acquire();
+  if (debug) console.log(`[${address}] req len: ${length}`); //console.log(`[0] address : ${address}, length
+  const result = await modbusClient.readCoils(address - 1, length);
+  if (debug) console.log(`[${address}] resp`);
+  mutex.release();
+  return result;
 };
 
 // setup lock
@@ -98,7 +91,6 @@ const get_lm_information = async (evt, partner) => {
       const replyChannel =
         partner !== true ? "set-lm-information" : "set-lm-information-partner";
       const { data } = await readRegister(address, length);
-      console.log(`info read ${data}`);
       information.operationState = data[0];
       information.productCode = data[1];
       information.serialNumber = data[2] | (data[3] << 16);
@@ -379,23 +371,23 @@ const get_io_ai_status = async (evt, { io_id }) => {
     try {
       const { address, length, data: information } = map.REG_IO_AI_STATUS;
 
-      const addr = address + (io_id - 1) * (length - 1);
+      const addr = address + (io_id - 1) * length;
 
       const replyChannel = "set-io-ai-status";
       const { data, buffer } = await readRegister(addr, length);
 
       information.channel1 = buffer.readFloatBE(0);
-      information.channel2 = buffer.readFloatBE(2);
-      information.channel3 = buffer.readFloatBE(4);
-      information.channel4 = buffer.readFloatBE(6);
-      information.channel5 = buffer.readFloatBE(8);
-      information.channel6 = buffer.readFloatBE(10);
-      information.channel7 = buffer.readFloatBE(12);
-      information.channel8 = buffer.readFloatBE(14);
-      information.channel9 = buffer.readFloatBE(16);
-      information.channel10 = buffer.readFloatBE(18);
-      information.channel11 = buffer.readFloatBE(20);
-      information.channel12 = buffer.readFloatBE(22);
+      information.channel2 = buffer.readFloatBE(4);
+      information.channel3 = buffer.readFloatBE(8);
+      information.channel4 = buffer.readFloatBE(12);
+      information.channel5 = buffer.readFloatBE(16);
+      information.channel6 = buffer.readFloatBE(20);
+      information.channel7 = buffer.readFloatBE(24);
+      information.channel8 = buffer.readFloatBE(28);
+      information.channel9 = buffer.readFloatBE(32);
+      information.channel10 = buffer.readFloatBE(36);
+      information.channel11 = buffer.readFloatBE(40);
+      information.channel12 = buffer.readFloatBE(44);
 
       evt.reply(replyChannel, information);
     } catch (err) {
@@ -484,6 +476,7 @@ const get_pc_fault_status = async (evt, { pc_id }) => {
     }
   }
 };
+
 const get_pc_status = async (evt, { pc_id }) => {
   if (modbusClient.isOpen) {
     try {
@@ -507,6 +500,32 @@ const get_pc_status = async (evt, { pc_id }) => {
     }
   }
 };
+
+const get_pc_ai_status = async (evt, { pc_id }) => {
+  if (modbusClient.isOpen) {
+    try {
+      const { address, length, data: information } = map.REG_PC_AI_STATUS;
+
+      const addr = address + (pc_id - 1) * length;
+
+      const replyChannel = "set-pc-ai-status";
+      const { data, buffer } = await readRegister(addr, length);
+
+      console.log(
+        `id : ${pc_id} addr: ${addr}, data: ${data} , length :${length}`
+      );
+      information.avgcurrent = buffer.readFloatBE(0);
+      information.activepower = buffer.readFloatBE(4);
+      information.powerfactor = buffer.readFloatBE(8);
+      information.ratingcurrent = buffer.readFloatBE(12);
+
+      evt.reply(replyChannel, information);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+};
+
 const set_pc_do_cmd = async (evt, { id, ch, value }) => {
   const buf = value;
   console.log(buf);
@@ -525,24 +544,45 @@ const set_pc_do_cmd = async (evt, { id, ch, value }) => {
     }
   }
 };
+
+export function release() {
+  mutex.release();
+}
+
 export function initRegisterAccess() {
   // main process 에서 동작
-  ipcMain.on("get-lm-information", get_lm_information);
-  ipcMain.on("get-ld-information", get_ld_information);
-  ipcMain.on("get-mismatch-alarm", get_mismatch_alarm);
-  ipcMain.on("get-lm-di-status", get_lm_di_status);
-  ipcMain.on("get-lm-do-status", get_lm_do_status);
+  ipcMain.on("request-lm-data", async (evt, arg) => {
+    await get_lm_information(evt, true);
+    await get_lm_information(evt, false);
+    await get_ld_information(evt, true);
+    await get_ld_information(evt, false);
+    await get_lm_di_status(evt);
+    await get_lm_do_status(evt);
+    await get_mismatch_alarm(evt);
+    await get_lm_setup(evt);
+  });
+
+  ipcMain.on("request-io-data", async (evt, { io_id }) => {
+    await get_io_information(evt, { io_id });
+    await get_io_di_status(evt, { io_id });
+    await get_io_do_status(evt, { io_id });
+    await get_io_ai_status(evt, { io_id });
+    await get_mismatch_alarm(evt, { io_id });
+    await get_lm_setup(evt);
+  });
+
+  ipcMain.on("request-pc-data", async (evt, { pc_id }) => {
+    await get_pc_di_status(evt, { pc_id });
+    await get_pc_do_status(evt, { pc_id });
+    await get_pc_fault_status(evt, { pc_id });
+    await get_pc_status(evt, { pc_id });
+    await get_pc_ai_status(evt, { pc_id });
+    await get_lm_setup(evt);
+    await get_mismatch_alarm(evt, { io_id });
+  });
+
   ipcMain.on("set-lm-do-cmd", set_lm_do_cmd);
-  ipcMain.on("get-lm-setup", get_lm_setup);
   ipcMain.on("set-lm-setup", set_lm_setup);
-  ipcMain.on("get-io-information", get_io_information);
-  ipcMain.on("get-io-di-status", get_io_di_status);
-  ipcMain.on("get-io-do-status", get_io_do_status);
   ipcMain.on("set-io-do-cmd", set_io_do_cmd);
-  ipcMain.on("get-io-ai-status", get_io_ai_status);
-  ipcMain.on("get-pc-di-status", get_pc_di_status);
-  ipcMain.on("get-pc-do-status", get_pc_do_status);
-  ipcMain.on("get-pc-falut-status", get_pc_fault_status);
   ipcMain.on("set-pc-do-cmd", set_pc_do_cmd);
-  ipcMain.on("get-pc-status", get_pc_status);
 }

@@ -33,13 +33,10 @@ function IOModule(id) {
       }
     });
   }, []);
+
   useInterval(() => {
-    ipcRenderer.send("get-io-information", { io_id: id.match.params.id });
-    ipcRenderer.send("get-io-di-status", { io_id: id.match.params.id });
-    ipcRenderer.send("get-io-do-status", { io_id: id.match.params.id });
-    ipcRenderer.send("get-io-ai-status", { io_id: id.match.params.id });    
-    ipcRenderer.send("get-mismatch-alarm");
-  }, 300);
+    ipcRenderer.send("request-io-data", { io_id: id.match.params.id });
+  }, 1500);
 
   const [info, setInformation] = useState({
     operationMode: 0,
