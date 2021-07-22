@@ -360,26 +360,28 @@ const get_io_ai_status = async (evt, { io_id }) => {
     try {
       const { address, length, data: information } = map.REG_IO_AI_STATUS;
 
-      const addr = address + (io_id - 1) * (length - 1);
+      const addr = address + (io_id - 1) * (length);
 
       const replyChannel = "set-io-ai-status";
       const { data, buffer } = await readRegister(addr, length);
 
       information.channel1 = buffer.readFloatBE(0);
-      information.channel2 = buffer.readFloatBE(2);
-      information.channel3 = buffer.readFloatBE(4);
-      information.channel4 = buffer.readFloatBE(6);
-      information.channel5 = buffer.readFloatBE(8);
-      information.channel6 = buffer.readFloatBE(10);
-      information.channel7 = buffer.readFloatBE(12);
-      information.channel8 = buffer.readFloatBE(14);
-      information.channel9 = buffer.readFloatBE(16);
-      information.channel10 = buffer.readFloatBE(18);
-      information.channel11 = buffer.readFloatBE(20);
-      information.channel12 = buffer.readFloatBE(22);
+      information.channel2 = buffer.readFloatBE(4);
+      information.channel3 = buffer.readFloatBE(8);
+      information.channel4 = buffer.readFloatBE(12);
+      information.channel5 = buffer.readFloatBE(16);
+      information.channel6 = buffer.readFloatBE(20);
+      information.channel7 = buffer.readFloatBE(24);
+      information.channel8 = buffer.readFloatBE(28);
+      information.channel9 = buffer.readFloatBE(32);
+      information.channel10 = buffer.readFloatBE(36);
+      information.channel11 = buffer.readFloatBE(40);
+      information.channel12 = buffer.readFloatBE(44);
 
       evt.reply(replyChannel, information);
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   }
 };
 
@@ -450,7 +452,6 @@ const get_pc_fault_status = async (evt, { pc_id }) => {
       information.ucr = data[9];
       information.externalalarm = data[10];
 
-      console.log(`id : ${pc_id} addr: ${addr}, data: ${information.externalalarm} , length :${length}`);
       evt.reply(replyChannel, information);
     } catch (err) {}
   }
@@ -476,6 +477,29 @@ const get_pc_status = async (evt, { pc_id }) => {
     } catch (err) {}
   }
 };
+const get_pc_ai_status = async (evt, { pc_id }) => {
+  if (modbusClient.isOpen) {
+    try {
+      const { address, length, data: information } = map.REG_PC_AI_STATUS;
+
+      const addr = address + (pc_id - 1) * (length);
+
+      const replyChannel = "set-pc-ai-status";
+      const { data, buffer } = await readRegister(addr, length);
+
+      console.log(`id : ${pc_id} addr: ${addr}, data: ${data} , length :${length}`);
+      information.avgcurrent = buffer.readFloatBE(0);
+      information.activepower = buffer.readFloatBE(4);
+      information.powerfactor = buffer.readFloatBE(8);
+      information.ratingcurrent = buffer.readFloatBE(12);
+
+      evt.reply(replyChannel, information);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+};
+
 const set_pc_do_cmd = async (evt, { id, ch, value }) => {
   const buf = value;
   console.log(buf);
@@ -495,6 +519,7 @@ const set_pc_do_cmd = async (evt, { id, ch, value }) => {
     }
   }
 };
+
 export function initRegisterAccess() {
   // main process 에서 동작
   ipcMain.on("get-lm-information", get_lm_information);
@@ -515,4 +540,5 @@ export function initRegisterAccess() {
   ipcMain.on("get-pc-falut-status", get_pc_fault_status);
   ipcMain.on("set-pc-do-cmd", set_pc_do_cmd);
   ipcMain.on("get-pc-status", get_pc_status);
+  ipcMain.on("get-pc-ai-status", get_pc_ai_status);
 }

@@ -5,6 +5,7 @@ import PCOutputStatus from "../Components/Module/PCOutputStatus";
 import PCDigitalOutput from "../Components/Module/PCDigitalOutput";
 import PCFaultStatus from "../Components/Module/PCFaultStatus";
 import PCStatus from "../Components/Module/PCStatus";
+import PCMeasureStatus from "../Components/Module/PCMeasureStatus";
 import { useInterval } from "../Hooks/useInterval";
 import { usePolling } from "../Hooks/useIpcOn";
 const { ipcRenderer } = window.require("electron");
@@ -28,6 +29,7 @@ function PCModule(id) {
     ipcRenderer.send("get-pc-do-status", { pc_id: id.match.params.id });
     ipcRenderer.send("get-pc-falut-status", { pc_id: id.match.params.id });
     ipcRenderer.send("get-pc-status", { pc_id: id.match.params.id });
+    ipcRenderer.send("get-pc-ai-status", { pc_id: id.match.params.id });
   }, 300);
 
   return (
@@ -37,6 +39,7 @@ function PCModule(id) {
         <PCDigitalOutput id={id.match.params.id} />
         <PCFaultStatus id={id.match.params.id} />
         <PCStatus id={id.match.params.id} />
+        <PCMeasureStatus id={id.match.params.id} />
     </Container>
   );
 

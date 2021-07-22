@@ -103,4 +103,14 @@ export const CMDContent = ({ name, ch, value, setCommand }) => {
     </Container>
   );
 };
+export const PCAIContent = ({ name, value }) => {
+  return (
+    <Container>
+      <Title>{name}</Title>
+      <AIValue value={value} priority="high">
+        {value}
+      </AIValue>
+    </Container>
+  );
+};
 
