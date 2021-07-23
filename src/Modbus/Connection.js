@@ -1,7 +1,7 @@
 import ModbusRTU from "modbus-serial";
 import { ipcMain } from "electron";
 import { release } from "./RegisterAccess";
-import SerialPort from "serialport";
+//import SerialPort from "serialport";
 
 export const modbusClient = new ModbusRTU();
 
@@ -47,12 +47,12 @@ export function initServer() {
     }
   });
 
-  ipcMain.on("get-serial-list", (evt, arg) => {
-    SerialPort.list().then((ports) => {
-      const paths = ports.map((p) => {
-        return { id: p.locationId, key: p.path };
-      });
-      evt.reply("resp-serial-list", paths);
-    });
-  });
+  // ipcMain.on("get-serial-list", (evt, arg) => {
+  //   SerialPort.list().then((ports) => {
+  //     const paths = ports.map((p) => {
+  //       return { id: p.locationId, key: p.path };
+  //     });
+  //     evt.reply("resp-serial-list", paths);
+  //   });
+  // });
 }
