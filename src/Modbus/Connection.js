@@ -1,11 +1,15 @@
 import ModbusRTU from "modbus-serial";
 import { ipcMain } from "electron";
+import { release } from "./RegisterAccess";
+import SerialPort from "serialport";
 
 export const modbusClient = new ModbusRTU();
 
 export async function connectServer({ ip, port }) {
+  release();
   if (modbusClient.isOpen) {
     console.log("connect server: isOpened");
+
     modbusClient.close();
   }
 
@@ -23,7 +27,9 @@ export function initServer() {
   ipcMain.on("connect-to-server", async (evt, arg) => {
     const { ip } = arg;
     try {
+      console.log("start to connect server ...");
       const state = await connectServer({ ip, port: 502 });
+      console.log(`connect result = ${state}`);
       evt.reply("resp-connect-to-server", { connectState: state, ip });
     } catch (err) {
       console.log(err);
@@ -39,5 +45,14 @@ export function initServer() {
     if (modbusClient.isOpen) {
       modbusClient.close(callback);
     }
+  });
+
+  ipcMain.on("get-serial-list", (evt, arg) => {
+    SerialPort.list().then((ports) => {
+      const paths = ports.map((p) => {
+        return { id: p.locationId, key: p.path };
+      });
+      evt.reply("resp-serial-list", paths);
+    });
   });
 }
