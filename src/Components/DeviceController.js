@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import styled, { keyframes } from "styled-components";
 import { set, useForm } from "react-hook-form";
 import oc from "open-color";
-import Modal from "styled-react-modal";
+//import Modal from "styled-react-modal";
 import ApplyButton from "./ApplyButton";
 import A2750LMSetup from "./Main/LMSetup";
 import LMAlarm from "./Main/LMAlarm";
+import Modal from "./CustomModal";
 import { useInterval } from "../Hooks/useInterval";
+import DeviceConfig from "./DeviceConfig";
 const { ipcRenderer } = window.require("electron");
 
 const pattern =
@@ -54,14 +56,14 @@ const DialogContainer = styled.div`
   background-color: grey;
 `;
 
-const StyledModal = Modal.styled`
-  width: 200px;
-  height: 150px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: white;
-`;
+// const StyledModal = Modal.styled`
+//   width: 200px;
+//   height: 150px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   background-color: white;
+// `;
 const Input = styled.input`
   width: 100%;
   border: 1px solid grey;
@@ -102,7 +104,7 @@ const StateToDisplay = (state) => {
 
 function DeviceController() {
   const [modelIsOpen, setIsOpen] = useState(false);
-  const [ipAddr, setIpAddr] = useState("10.10.20.207");
+  const [ipAddr, setIpAddr] = useState("10.10.23.48");
   const [state, setState] = useState(STATE_DISCONNECTED);
   const [serialList, setSerialList] = useState([]);
   const { register, handleSubmit, watch, errors } = useForm();
@@ -136,7 +138,7 @@ function DeviceController() {
     // try to connect modbus server
     setState(STATE_REQUEST_CONNECT);
     ipcRenderer.send("connect-to-server", { ip: ipAddr });
-    ipcRenderer.send("get-serial-list");
+    //ipcRenderer.send("get-serial-list");
     return () => {
       ipcRenderer.removeAllListeners("get-connection-result");
     };
@@ -189,7 +191,10 @@ function DeviceController() {
           <option value={(path.id, path.key)}>{path.key}</option>
         ))}
       </select>
-      <StyledModal isOpen={modelIsOpen} onEscapeKeydown={closeModal}>
+      <Modal open={modelIsOpen} close={closeModal}>
+          <DeviceConfig></DeviceConfig>
+      </Modal>
+      {/* <StyledModal isOpen={modelIsOpen} onEscapeKeydown={closeModal}>
         <IPForm onSubmit={handleSubmit(onSubmit, onError)}>
           <IPLabel>ip address</IPLabel>
           <Input
@@ -207,7 +212,7 @@ function DeviceController() {
 
           <ApplyButton>Apply</ApplyButton>
         </IPForm>
-      </StyledModal>
+      </StyledModal> */}
     </Container>
   );
 }
