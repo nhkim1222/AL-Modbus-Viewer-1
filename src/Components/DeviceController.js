@@ -181,7 +181,7 @@ function DeviceController() {
       <ConnecionState connected={state === STATE_CONNECTED}>
         {StateToDisplay(state)}
       </ConnecionState>
-      <ApplyButton onClick={openModal}>Change connection</ApplyButton>
+      <ApplyButton name="change connect" onClick={openModal} />
       <LMAlarm></LMAlarm>
       {/* <select>
         {serialList.map((path) => (

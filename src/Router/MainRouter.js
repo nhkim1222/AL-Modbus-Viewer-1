@@ -10,6 +10,7 @@ import LMStatusContainer from "../Components/Main/Container/LMStatusContainer";
 import { useInterval } from "../Hooks/useInterval";
 import LMCommonSetup from "../Components/Main/LMCommonSetup";
 import LMSetupContainer from "../Components/Main/Container/LMSetupContainer";
+import LMEvents from "../Components/Main/LMEvents";
 const { ipcRenderer } = window.require("electron");
 const Container = styled.div`
   display: flex;
@@ -54,6 +55,7 @@ function MainRouter({ match }) {
       {isConnected && (
         <Route path="/LM/setup" component={LMSetupContainer}></Route>
       )}
+      {isConnected && <Route path="/LM/event" component={LMEvents}></Route>}
     </Container>
   );
 }
