@@ -4,7 +4,6 @@ import { set, useForm } from "react-hook-form";
 import oc from "open-color";
 import Modal from "styled-react-modal";
 import ApplyButton from "./ApplyButton";
-import A2750LMSetup from "./Main/LMSetup";
 import LMAlarm from "./Main/LMAlarm";
 import { useInterval } from "../Hooks/useInterval";
 const { ipcRenderer } = window.require("electron");

@@ -5,7 +5,16 @@ export const Map = {
       fc: 3,
       address: 63001,
       length: 11,
-      parser = (data) => {
+      data: {
+        operationState: "", //1w
+        productCode: 0, // 1w
+        serialNumber: 0, // 2w
+        hardwareRevision: 1, // 2w
+        pcbVersion: "", // 1w
+        applicationVersion: "", // 1w
+        bootloaderVersion: "", // 1w
+      },
+      parser : (data) => {
         return {
           operationState: data[0],
           productCode: data[1],
