@@ -7,6 +7,7 @@ import MainModule from "../Router/MainModule";
 import DeviceController from "./DeviceController";
 import Header from "./Header";
 import MainRouter from "../Router/MainRouter";
+import IORouter from "../Router/IORouter";
 
 const Container = styled.div`
   display: flex;
@@ -60,7 +61,7 @@ function Router() {
         {/* <Switch> */}
         <Route path="/LM" component={MainRouter} />
         <Route path="/PC/:id" component={PCModule} />
-        <Route path="/IO/:id" component={IOModule} />
+        <Route path="/IO" component={IORouter} />
         {/* </Switch> */}
       </Container>
     </HashRouter>
