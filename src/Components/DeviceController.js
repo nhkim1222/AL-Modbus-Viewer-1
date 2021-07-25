@@ -4,7 +4,7 @@ import { set, useForm } from "react-hook-form";
 import oc from "open-color";
 //import Modal from "styled-react-modal";
 import ApplyButton from "./ApplyButton";
-import A2750LMSetup from "./Main/LMSetup";
+import LMCommonSetup from "./Main/LMCommonSetup";
 import LMAlarm from "./Main/LMAlarm";
 import Modal from "./CustomModal";
 import { useInterval } from "../Hooks/useInterval";
@@ -104,7 +104,11 @@ const StateToDisplay = (state) => {
 
 function DeviceController() {
   const [modelIsOpen, setIsOpen] = useState(false);
+<<<<<<< HEAD
   const [ipAddr, setIpAddr] = useState("10.10.23.48");
+=======
+  const [ipAddr, setIpAddr] = useState("127.0.0.1");
+>>>>>>> 36c18484cffdcaad8c54ae99f0d0858772ef84e3
   const [state, setState] = useState(STATE_DISCONNECTED);
   const [serialList, setSerialList] = useState([]);
   const { register, handleSubmit, watch, errors } = useForm();
@@ -183,18 +187,22 @@ function DeviceController() {
       <ConnecionState connected={state === STATE_CONNECTED}>
         {StateToDisplay(state)}
       </ConnecionState>
-      <ApplyButton onClick={openModal}>Change connection</ApplyButton>
+      <ApplyButton name="change connect" onClick={openModal} />
       <LMAlarm></LMAlarm>
-      <A2750LMSetup />
-      <select>
+      {/* <select>
         {serialList.map((path) => (
           <option value={(path.id, path.key)}>{path.key}</option>
         ))}
+<<<<<<< HEAD
       </select>
       <Modal open={modelIsOpen} close={closeModal}>
           <DeviceConfig></DeviceConfig>
       </Modal>
       {/* <StyledModal isOpen={modelIsOpen} onEscapeKeydown={closeModal}>
+=======
+      </select> */}
+      <StyledModal isOpen={modelIsOpen} onEscapeKeydown={closeModal}>
+>>>>>>> 36c18484cffdcaad8c54ae99f0d0858772ef84e3
         <IPForm onSubmit={handleSubmit(onSubmit, onError)}>
           <IPLabel>ip address</IPLabel>
           <Input

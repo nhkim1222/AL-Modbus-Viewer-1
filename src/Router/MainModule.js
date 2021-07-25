@@ -4,7 +4,7 @@ import LDInformation from "../Components/Main/LDInformation";
 import LMDigitalInput from "../Components/Main/LMDigitalInput";
 import LMDigitalOutput from "../Components/Main/LMDigitalOutput";
 import LMInformation from "../Components/Main/LMInformation";
-import A2750LMSetup from "../Components/Main/LMSetup";
+import LMCommonSetup from "../Components/Main/LMCommonSetup";
 import { useInterval } from "../Hooks/useInterval";
 const { ipcRenderer } = window.require("electron");
 
@@ -32,12 +32,6 @@ function MainModule() {
       }
     });
   }, []);
-
-  useInterval(() => {
-    if (connected) {
-      ipcRenderer.send("request-lm-data", false);
-    }
-  }, 1500);
 
   return (
     <Container>
