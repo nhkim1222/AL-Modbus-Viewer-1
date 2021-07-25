@@ -4,7 +4,7 @@ import { set, useForm } from "react-hook-form";
 import oc from "open-color";
 import Modal from "styled-react-modal";
 import ApplyButton from "./ApplyButton";
-import A2750LMSetup from "./Main/LMSetup";
+import LMCommonSetup from "./Main/LMCommonSetup";
 import LMAlarm from "./Main/LMAlarm";
 import { useInterval } from "../Hooks/useInterval";
 const { ipcRenderer } = window.require("electron");
@@ -102,7 +102,7 @@ const StateToDisplay = (state) => {
 
 function DeviceController() {
   const [modelIsOpen, setIsOpen] = useState(false);
-  const [ipAddr, setIpAddr] = useState("10.10.20.207");
+  const [ipAddr, setIpAddr] = useState("127.0.0.1");
   const [state, setState] = useState(STATE_DISCONNECTED);
   const [serialList, setSerialList] = useState([]);
   const { register, handleSubmit, watch, errors } = useForm();
@@ -183,12 +183,11 @@ function DeviceController() {
       </ConnecionState>
       <ApplyButton onClick={openModal}>Change connection</ApplyButton>
       <LMAlarm></LMAlarm>
-      <A2750LMSetup />
-      <select>
+      {/* <select>
         {serialList.map((path) => (
           <option value={(path.id, path.key)}>{path.key}</option>
         ))}
-      </select>
+      </select> */}
       <StyledModal isOpen={modelIsOpen} onEscapeKeydown={closeModal}>
         <IPForm onSubmit={handleSubmit(onSubmit, onError)}>
           <IPLabel>ip address</IPLabel>

@@ -6,6 +6,7 @@ const Container = styled.header`
   color: white;
   padding: 20px;
   height: 50px;
+  width: 100%;
   display: inline-flex;
   align-items: center;
   padding: 0px 10px;
@@ -44,8 +45,8 @@ const Header = withRouter(({ location: { pathname } }) => {
         <Item current={pathname === "/PC/02"}>
           <ItemLink to="/PC/02">PC2</ItemLink>
         </Item>
-        <Item current={pathname === "/"}>
-          <ItemLink to="/">LM</ItemLink>
+        <Item current={pathname === "/LM"}>
+          <ItemLink to="/LM">LM</ItemLink>
         </Item>
         <Item current={pathname === "/IO/01"}>
           <ItemLink to="/IO/01">IO1</ItemLink>

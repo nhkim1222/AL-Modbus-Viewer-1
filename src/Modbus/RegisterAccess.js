@@ -559,7 +559,6 @@ export function initRegisterAccess() {
     await get_lm_di_status(evt);
     await get_lm_do_status(evt);
     await get_mismatch_alarm(evt);
-    await get_lm_setup(evt);
   });
 
   ipcMain.on("request-io-data", async (evt, { io_id }) => {
@@ -568,7 +567,6 @@ export function initRegisterAccess() {
     await get_io_do_status(evt, { io_id });
     await get_io_ai_status(evt, { io_id });
     await get_mismatch_alarm(evt, { io_id });
-    await get_lm_setup(evt);
   });
 
   ipcMain.on("request-pc-data", async (evt, { pc_id }) => {
@@ -579,6 +577,10 @@ export function initRegisterAccess() {
     await get_pc_ai_status(evt, { pc_id });
     await get_lm_setup(evt);
     await get_mismatch_alarm(evt, { io_id });
+  });
+
+  ipcMain.on("request-lm-setup", async (evt, arg) => {
+    await get_lm_setup(evt);
   });
 
   ipcMain.on("set-lm-do-cmd", set_lm_do_cmd);

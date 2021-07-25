@@ -11,7 +11,7 @@ const operation_state = (val) => {
 
 function LMInformation({ partner }) {
   const [information, setInformation] = useState({
-    operationState: 1,
+    operationState: 0,
     productCode: 0,
     serialNumber: 0,
     hardwareRevision: 0,
@@ -29,6 +29,8 @@ function LMInformation({ partner }) {
       <DataContent
         prop="operation state"
         value={operation_state(information.operationState)}
+        invalid={information.operationState === 0}
+        priority="high"
       />
       <DataContent prop="produrct code" value={information.productCode} />
       <DataContent

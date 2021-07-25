@@ -9,13 +9,13 @@ const operation_state = (val) => {
 };
 function LDInformation({ partner }) {
   const [information, setInformation] = useState({
-    operationState: "UNIDENTIFIED",
-    productCode: "R9",
-    serialNumber: 10000,
+    operationState: 0,
+    productCode: 0,
+    serialNumber: 0,
     hardwareRevision: 0,
-    applicationVersion: "0.0.000",
-    kernelVersion: "0.0.000",
-    bootloaderVersion: "0.0.000",
+    applicationVersion: 0,
+    kernelVersion: 0,
+    bootloaderVersion: 0,
     pcbVersion: 0,
   });
   const channel =
@@ -25,48 +25,29 @@ function LDInformation({ partner }) {
 
   return (
     <ContentBox>
-      <TitleLabel>Accura 2750LD {partner ? "(PARTNER)" : ""}</TitleLabel>
+      <TitleLabel>Accura 2750LD {partner ? "(P)" : "(A)"}</TitleLabel>
       <DataContent
         prop="operationState"
         value={operation_state(information.operationState)}
         invalid={information.operationState === 0}
         priority="high"
       />
-      <DataContent
-        prop="productCode"
-        value={information.productCode}
-        priority="high"
-      />
-      <DataContent
-        prop="serialNumber"
-        value={information.serialNumber}
-        priority="high"
-      />
+      <DataContent prop="productCode" value={information.productCode} />
+      <DataContent prop="serialNumber" value={information.serialNumber} />
       <DataContent
         prop="hardwareRevision"
         value={information.hardwareRevision}
-        priority="high"
       />
       <DataContent
         prop="applicationVersion"
         value={information.applicationVersion}
-        priority="high"
       />
-      <DataContent
-        prop="kernelVersion"
-        value={information.kernelVersion}
-        priority="high"
-      />
+      <DataContent prop="kernelVersion" value={information.kernelVersion} />
       <DataContent
         prop="bootloaderVersion"
         value={information.bootloaderVersion}
-        priority="high"
       />
-      <DataContent
-        prop="pcbVersion"
-        value={information.pcbVersion}
-        priority="high"
-      />
+      <DataContent prop="pcbVersion" value={information.pcbVersion} />
     </ContentBox>
   );
 }
