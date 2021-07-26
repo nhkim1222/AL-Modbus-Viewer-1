@@ -25,6 +25,16 @@ module.exports = [
     },
   },
   {
+    test: /\.tsx?$/,
+    exclude: /(node_modules|\.webpack)/,
+    use: {
+      loader: "ts-loader",
+      options: {
+        transpileOnly: true,
+      },
+    },
+  },
+  {
     test: /\.(jpg|png|gif|jpeg|woff|woff2|eot|ttf|svg)$/,
     use: {
       loader: "file-loader",

@@ -56,7 +56,6 @@ const TypeLabel = styled.div`
   background-color: ${(props) => typeColor[props.type]};
   border-radius: 2px;
 `;
-
 const ParseInfo = (val) => {
   const eventType = (val >> 23) & 0x1f;
   switch (eventType) {
@@ -147,7 +146,6 @@ const ModuleManagementParse = (
       } `;
   }
 };
-
 const ParseContent = (val, detail, detail1, detail2, detail3, detail4) => {
   const eventType = (val >> 23) & 0x1f;
   switch (eventType) {
