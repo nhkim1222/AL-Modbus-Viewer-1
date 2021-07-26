@@ -2,7 +2,6 @@ import { ipcMain } from "electron";
 import { modbusClient, Protocol } from "./Connection";
 import { MapForRTU, Map } from "./RegisterMap";
 import Mutex from "../Hooks/Mutex";
-import {get_event} from "./EventManagement";
 
 const debug = false;
 
@@ -84,7 +83,6 @@ const setupUnlock = async () => {
 const get_lm_information = async (evt, partner) => {
   if (modbusClient.isOpen) {
     try {
-
       const {
         address,
         length,
@@ -96,14 +94,13 @@ const get_lm_information = async (evt, partner) => {
       const { data } = await readRegister(address, length);
       information.operationState = data[0];
       information.productCode = data[1];
-      information.serialNumber = data[2] | data[3] << 16;
+      information.serialNumber = data[2] | (data[3] << 16);
       information.hardwareRevision = data[4];
       information.pcbVersion = data[8];
       information.applicationVersion = data[9];
       information.bootloaderVersion = data[10];
 
       evt.reply(replyChannel, information);
-
     } catch (error) {
       handleError(evt);
     }
@@ -549,6 +546,32 @@ const set_pc_do_cmd = async (evt, { id, ch, value }) => {
   }
 };
 
+const get_event = async (evt) => {
+  if (modbusClient.isOpen) {
+    try {
+      const { address, length, data: event } = Map.REG_EVENT_STATUS;
+
+      const addr = address;
+
+      const replyChannel = "set-event";
+      const { data } = await readRegister(addr, length);
+
+      event.info = data[0] | (data[1] << 16);
+      event.sec = data[2] | (data[3] << 16);
+      event.msec = data[4];
+      event.index = data[5];
+      event.detail = data[6] | (data[7] << 16);
+      event.detail1 = data[8] | (data[9] << 16);
+      event.detail2 = data[10] | (data[11] << 16);
+      event.detail3 = data[12] | (data[13] << 16);
+      event.detail4 = data[14] | (data[15] << 16);
+
+      evt.reply(replyChannel, event);
+    } catch (err) {
+      handleError(evt);
+    }
+  }
+};
 
 export function release() {
   mutex.release();
@@ -565,7 +588,7 @@ export function initRegisterAccess() {
     await get_lm_do_status(evt);
     await get_mismatch_alarm(evt);
     await get_event(evt);
-    });
+  });
 
   ipcMain.on("request-io-data", async (evt, { io_id }) => {
     await get_io_information(evt, { io_id });
