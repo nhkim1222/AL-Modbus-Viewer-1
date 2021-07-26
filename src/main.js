@@ -37,6 +37,7 @@ const createWindow = () => {
   // });
 
   initRegisterAccess();
+  initEvent();
   initServer();
 };
 

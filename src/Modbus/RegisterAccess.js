@@ -2,6 +2,7 @@ import { ipcMain } from "electron";
 import { modbusClient, Protocol } from "./Connection";
 import { MapForRTU, Map } from "./RegisterMap";
 import Mutex from "../Hooks/Mutex";
+import {get_event} from "./EventManagement";
 
 const debug = false;
 
@@ -27,7 +28,7 @@ Array.prototype.ToIntReverse = (index) => {
 const mutex = new Mutex();
 
 const handleError = (evt, err) => {
-  console.log(err);
+  console.log(`handle error = ${err} ${evt}`);
   // modbusClient.close(() => {
   //   console.log("close callback executed");
   //   evt.reply("error-disconnected");
@@ -83,20 +84,26 @@ const setupUnlock = async () => {
 const get_lm_information = async (evt, partner) => {
   if (modbusClient.isOpen) {
     try {
-      
+
       const {
         address,
         length,
-        parser,
-      } = partner !== true ? Map[Protocol].REG_LM_INFO : Map[Protocol].REG_LM_INFO_PARTNER;
+        data: information,
+      } = partner !== true ? Map.REG_LM_INFO : Map.REG_LM_INFO_PARTNER;
 
       const replyChannel =
         partner !== true ? "set-lm-information" : "set-lm-information-partner";
       const { data } = await readRegister(address, length);
-   
+      information.operationState = data[0];
+      information.productCode = data[1];
+      information.serialNumber = data[2] | data[3] << 16;
+      information.hardwareRevision = data[4];
+      information.pcbVersion = data[8];
+      information.applicationVersion = data[9];
+      information.bootloaderVersion = data[10];
 
-      evt.reply(replyChannel, parser(data));
-      
+      evt.reply(replyChannel, information);
+
     } catch (error) {
       handleError(evt);
     }
@@ -557,7 +564,8 @@ export function initRegisterAccess() {
     await get_lm_di_status(evt);
     await get_lm_do_status(evt);
     await get_mismatch_alarm(evt);
-  });
+    await get_event(evt);
+    });
 
   ipcMain.on("request-io-data", async (evt, { io_id }) => {
     await get_io_information(evt, { io_id });
