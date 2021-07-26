@@ -1,9 +1,10 @@
 import { ipcMain } from "electron";
-import { modbusClient } from "./Connection";
-import { map } from "./RegisterMap";
+import { modbusClient, Protocol } from "./Connection";
+import { MapForRTU, Map } from "./RegisterMap";
 import Mutex from "../Hooks/Mutex";
 
 const debug = false;
+
 /* utility functions */
 Array.prototype.ToShort = (index) => {
   // javascript standard include object Number
@@ -82,24 +83,20 @@ const setupUnlock = async () => {
 const get_lm_information = async (evt, partner) => {
   if (modbusClient.isOpen) {
     try {
+      
       const {
         address,
         length,
-        data: information,
-      } = partner !== true ? map.REG_LM_INFO : map.REG_LM_INFO_PARTNER;
+        parser,
+      } = partner !== true ? Map[Protocol].REG_LM_INFO : Map[Protocol].REG_LM_INFO_PARTNER;
 
       const replyChannel =
         partner !== true ? "set-lm-information" : "set-lm-information-partner";
       const { data } = await readRegister(address, length);
-      information.operationState = data[0];
-      information.productCode = data[1];
-      information.serialNumber = data[2] | (data[3] << 16);
-      information.hardwareRevision = data[4];
-      information.pcbVersion = data[8];
-      information.applicationVersion = data[9];
-      information.bootloaderVersion = data[10];
+   
 
-      evt.reply(replyChannel, information);
+      evt.reply(replyChannel, parser(data));
+      
     } catch (error) {
       handleError(evt);
     }
@@ -113,7 +110,7 @@ const get_ld_information = async (evt, payload) => {
         address,
         length,
         data: information,
-      } = payload !== true ? map.REG_LD_INFO : map.REG_LD_INFO_PARTNER;
+      } = payload !== true ? Map.REG_LD_INFO : Map.REG_LD_INFO_PARTNER;
 
       const replyChannel =
         payload !== true ? "set-ld-information" : "set-ld-information-partner";
@@ -138,7 +135,7 @@ const get_ld_information = async (evt, payload) => {
 const get_lm_di_status = async (evt, payload) => {
   if (modbusClient.isOpen) {
     try {
-      const { address, length, data: diStatus } = map.REG_LM_DI_STATUS;
+      const { address, length, data: diStatus } = Map.REG_LM_DI_STATUS;
       const { data } = await readCoil(address, length);
       diStatus.channel1 = data[0];
       diStatus.channel2 = data[1];
@@ -168,7 +165,7 @@ const get_lm_di_status = async (evt, payload) => {
 const get_lm_do_status = async (evt, payload) => {
   if (modbusClient.isOpen) {
     try {
-      const { address, length, data: doStatus } = map.REG_LM_DO_STATUS;
+      const { address, length, data: doStatus } = Map.REG_LM_DO_STATUS;
       const { data } = await readCoil(address, length);
 
       doStatus.channel1 = data[0];
@@ -201,7 +198,7 @@ const set_lm_do_cmd = (evt, { ch, value }) => {
 const get_mismatch_alarm = async (evt, payload) => {
   if (modbusClient.isOpen) {
     try {
-      const { address, length, data: alarm } = map.REG_MISSMATCH_ALARM;
+      const { address, length, data: alarm } = Map.REG_MISSMATCH_ALARM;
       const { data } = await readCoil(address, length);
       alarm.state = data[0];
 
@@ -215,7 +212,7 @@ const get_mismatch_alarm = async (evt, payload) => {
 const get_lm_setup = async (evt, payload) => {
   if (modbusClient.isOpen) {
     try {
-      const { address, length, data: setup } = map.REG_SETUP_LM;
+      const { address, length, data: setup } = Map.REG_SETUP_LM;
       const { data } = await readRegister(address, length);
       setup.access = data[0];
       setup.operationMode = data[1];
@@ -232,7 +229,7 @@ const get_lm_setup = async (evt, payload) => {
 const set_lm_setup = async (evt, setup) => {
   if (modbusClient.isOpen) {
     try {
-      const { address, length } = map.REG_SETUP_LM;
+      const { address, length } = Map.REG_SETUP_LM;
       console.log("setup lock");
       setupUnlock();
       const buffer = [
@@ -258,7 +255,7 @@ const set_lm_setup = async (evt, setup) => {
 const get_io_information = async (evt, { io_id }) => {
   if (modbusClient.isOpen) {
     try {
-      const { address, length, data: information } = map.REG_IO_INFORMATION;
+      const { address, length, data: information } = Map.REG_IO_INFORMATION;
 
       const addr = address + (io_id - 1) * length;
 
@@ -284,7 +281,7 @@ const get_io_information = async (evt, { io_id }) => {
 const get_io_di_status = async (evt, { io_id }) => {
   if (modbusClient.isOpen) {
     try {
-      const { address, length, data: information } = map.REG_IO_DI_STATUS;
+      const { address, length, data: information } = Map.REG_IO_DI_STATUS;
 
       const addr = address + (io_id - 1) * length;
 
@@ -324,7 +321,7 @@ const get_io_di_status = async (evt, { io_id }) => {
 const get_io_do_status = async (evt, { io_id }) => {
   if (modbusClient.isOpen) {
     try {
-      const { address, length, data: information } = map.REG_IO_DO_STATUS;
+      const { address, length, data: information } = Map.REG_IO_DO_STATUS;
 
       const addr = address + (io_id - 1) * length;
 
@@ -369,7 +366,7 @@ const set_io_do_cmd = async (evt, { id, ch, value }) => {
 const get_io_ai_status = async (evt, { io_id }) => {
   if (modbusClient.isOpen) {
     try {
-      const { address, length, data: information } = map.REG_IO_AI_STATUS;
+      const { address, length, data: information } = Map.REG_IO_AI_STATUS;
 
       const addr = address + (io_id - 1) * length;
 
@@ -399,7 +396,7 @@ const get_io_ai_status = async (evt, { io_id }) => {
 const get_pc_di_status = async (evt, { pc_id }) => {
   if (modbusClient.isOpen) {
     try {
-      const { address, length, data: information } = map.REG_PC_DI_STATUS;
+      const { address, length, data: information } = Map.REG_PC_DI_STATUS;
 
       const addr = address + (pc_id - 1) * 33;
 
@@ -426,7 +423,7 @@ const get_pc_di_status = async (evt, { pc_id }) => {
 const get_pc_do_status = async (evt, { pc_id }) => {
   if (modbusClient.isOpen) {
     try {
-      const { address, length, data: information } = map.REG_PC_DO_STATUS;
+      const { address, length, data: information } = Map.REG_PC_DO_STATUS;
 
       const addr = address + (pc_id - 1) * 33;
 
@@ -448,7 +445,7 @@ const get_pc_do_status = async (evt, { pc_id }) => {
 const get_pc_fault_status = async (evt, { pc_id }) => {
   if (modbusClient.isOpen) {
     try {
-      const { address, length, data: information } = map.REG_PC_FAULT_STATUS;
+      const { address, length, data: information } = Map.REG_PC_FAULT_STATUS;
 
       const addr = address + (pc_id - 1) * 33;
 
@@ -480,7 +477,7 @@ const get_pc_fault_status = async (evt, { pc_id }) => {
 const get_pc_status = async (evt, { pc_id }) => {
   if (modbusClient.isOpen) {
     try {
-      const { address, length, data: information } = map.REG_PC_STATUS;
+      const { address, length, data: information } = Map.REG_PC_STATUS;
 
       const addr = address + (pc_id - 1) * 33;
 
@@ -504,7 +501,7 @@ const get_pc_status = async (evt, { pc_id }) => {
 const get_pc_ai_status = async (evt, { pc_id }) => {
   if (modbusClient.isOpen) {
     try {
-      const { address, length, data: information } = map.REG_PC_AI_STATUS;
+      const { address, length, data: information } = Map.REG_PC_AI_STATUS;
 
       const addr = address + (pc_id - 1) * length;
 
@@ -545,6 +542,7 @@ const set_pc_do_cmd = async (evt, { id, ch, value }) => {
   }
 };
 
+
 export function release() {
   mutex.release();
 }
@@ -559,7 +557,6 @@ export function initRegisterAccess() {
     await get_lm_di_status(evt);
     await get_lm_do_status(evt);
     await get_mismatch_alarm(evt);
-    await get_lm_setup(evt);
   });
 
   ipcMain.on("request-io-data", async (evt, { io_id }) => {
@@ -568,7 +565,6 @@ export function initRegisterAccess() {
     await get_io_do_status(evt, { io_id });
     await get_io_ai_status(evt, { io_id });
     await get_mismatch_alarm(evt, { io_id });
-    await get_lm_setup(evt);
   });
 
   ipcMain.on("request-pc-data", async (evt, { pc_id }) => {
@@ -579,6 +575,10 @@ export function initRegisterAccess() {
     await get_pc_ai_status(evt, { pc_id });
     await get_lm_setup(evt);
     await get_mismatch_alarm(evt, { io_id });
+  });
+
+  ipcMain.on("request-lm-setup", async (evt, arg) => {
+    await get_lm_setup(evt);
   });
 
   ipcMain.on("set-lm-do-cmd", set_lm_do_cmd);

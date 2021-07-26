@@ -19,7 +19,7 @@ const GlobalStyle = createGlobalStyle`
         display: flex;
         box-sizing: border-box;
         overflow: hidden;
-        height: 100%
+        height: 100%;
     };
     html{
         height: 100%
@@ -28,7 +28,8 @@ const GlobalStyle = createGlobalStyle`
         display: flex;
         box-sizing: border-box;
         overflow: hidden;
-        height: 100%
+        height: 100%;
+        width:100%;
     }
 `;
 

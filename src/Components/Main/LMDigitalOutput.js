@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 import { ContentBox, TitleLabel } from "../Style";
-import useIpcOn, { usePolling } from "../../Hooks/useIpcOn";
-import {
-  CHANNEL_LM_DO_COMMAND,
-  CHANNEL_LM_DO_STATUS,
-} from "../../Modbus/Channel";
+import { usePolling } from "../../Hooks/useIpcOn";
 import { DOContent } from "../DIOContent";
 
 function LMDigitalOutput() {

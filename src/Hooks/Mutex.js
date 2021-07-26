@@ -3,10 +3,8 @@ export default class Mutex {
     this.lock = false;
   }
   async acquire() {
-    console.log("lock");
     while (true) {
       if (this.lock === false) {
-        console.log("unlock");
         break;
       }
       // custom sleep (setTimeout)

@@ -6,20 +6,21 @@ import PCModule from "../Router/PCModule";
 import MainModule from "../Router/MainModule";
 import DeviceController from "./DeviceController";
 import Header from "./Header";
+import MainRouter from "../Router/MainRouter";
+import IORouter from "../Router/IORouter";
 
 const Container = styled.div`
   display: flex;
   height: 100%;
-  width: 100%;
   flex-direction: column;
   background-color: white;
-  flex-grow: 1;
+  flex-grow: 12;
 `;
 const ContainerLeft = styled.div`
   display: flex;
   height: 100%;
   flex-direction: column;
-  flex-shrink: 0;
+  flex-grow: 0;
 `;
 const TopLeft = styled.div`
   flex-shrink: 0;
@@ -57,12 +58,11 @@ function Router() {
       </ContainerLeft>
       <Container>
         <Header></Header>
-        <Switch>
-          <Route path="/" exact component={MainModule} />
-          <Route path="/PC/:id" component={PCModule} />
-          <Route path="/IO/:id" component={IOModule} />
-          <Redirect from="*" to="/" />
-        </Switch>
+        {/* <Switch> */}
+        <Route path="/LM" component={MainRouter} />
+        <Route path="/PC/:id" component={PCModule} />
+        <Route path="/IO" component={IORouter} />
+        {/* </Switch> */}
       </Container>
     </HashRouter>
   );

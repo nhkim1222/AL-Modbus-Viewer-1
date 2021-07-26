@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import styled, { keyframes } from "styled-components";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import oc from "open-color";
-import Modal from "styled-react-modal";
 import ApplyButton from "./ApplyButton";
-import A2750LMSetup from "./Main/LMSetup";
 import LMAlarm from "./Main/LMAlarm";
+import Modal from "./CustomModal";
 import { useInterval } from "../Hooks/useInterval";
 const { ipcRenderer } = window.require("electron");
 
 const pattern =
   /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+
 const Container = styled.div`
   color: black;
   padding: 20px;
@@ -18,6 +18,7 @@ const Container = styled.div`
   flex-direction: column;
   height: 100%;
 `;
+
 const InfoLabel = styled.label`
   color: #fafafa;
   font-size: 10px;
@@ -49,19 +50,6 @@ const IpAddress = styled.label`
   margin-bottom: 5px;
 `;
 
-const DialogContainer = styled.div`
-  height: 100%;
-  background-color: grey;
-`;
-
-const StyledModal = Modal.styled`
-  width: 200px;
-  height: 150px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: white;
-`;
 const Input = styled.input`
   width: 100%;
   border: 1px solid grey;
@@ -72,9 +60,11 @@ const Input = styled.input`
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 `;
+
 const IPForm = styled.form`
   padding: 10px;
 `;
+
 const IPLabel = styled.label`
   font-size: 10px;
   font-weight: 600;
@@ -83,9 +73,7 @@ const IPLabel = styled.label`
 
 const STATE_CONNECTED = 1;
 const STATE_DISCONNECTED = 2;
-const STATE_CHANGE_IP = 3;
 const STATE_REQUEST_CONNECT = 4;
-const STATE_RECV_SERVER_RESP = 5;
 
 const StateToDisplay = (state) => {
   switch (state) {
@@ -102,7 +90,7 @@ const StateToDisplay = (state) => {
 
 function DeviceController() {
   const [modelIsOpen, setIsOpen] = useState(false);
-  const [ipAddr, setIpAddr] = useState("10.10.20.207");
+  const [ipAddr, setIpAddr] = useState("10.10.23.48");
   const [state, setState] = useState(STATE_DISCONNECTED);
   const [serialList, setSerialList] = useState([]);
   const { register, handleSubmit, watch, errors } = useForm();
@@ -136,7 +124,7 @@ function DeviceController() {
     // try to connect modbus server
     setState(STATE_REQUEST_CONNECT);
     ipcRenderer.send("connect-to-server", { ip: ipAddr });
-    ipcRenderer.send("get-serial-list");
+    //ipcRenderer.send("get-serial-list");
     return () => {
       ipcRenderer.removeAllListeners("get-connection-result");
     };
@@ -181,15 +169,9 @@ function DeviceController() {
       <ConnecionState connected={state === STATE_CONNECTED}>
         {StateToDisplay(state)}
       </ConnecionState>
-      <ApplyButton onClick={openModal}>Change connection</ApplyButton>
+      <ApplyButton name="change connect" onClick={openModal} />
       <LMAlarm></LMAlarm>
-      <A2750LMSetup />
-      <select>
-        {serialList.map((path) => (
-          <option value={(path.id, path.key)}>{path.key}</option>
-        ))}
-      </select>
-      <StyledModal isOpen={modelIsOpen} onEscapeKeydown={closeModal}>
+      <Modal open={modelIsOpen} close={closeModal}>
         <IPForm onSubmit={handleSubmit(onSubmit, onError)}>
           <IPLabel>ip address</IPLabel>
           <Input
@@ -207,7 +189,7 @@ function DeviceController() {
 
           <ApplyButton>Apply</ApplyButton>
         </IPForm>
-      </StyledModal>
+      </Modal>
     </Container>
   );
 }

@@ -15,29 +15,7 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const ContainerChild = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-grow: 1;
-`;
-
 function IOModule(id) {
-  const [connected, setConnected] = useState(false);
-
-  useEffect(() => {
-    ipcRenderer.on("server-connection-state", (evt, isConnected) => {
-      if (isConnected === false) {
-        setConnected(false);
-      } else {
-        setConnected(true);
-      }
-    });
-  }, []);
-
-  useInterval(() => {
-    ipcRenderer.send("request-io-data", { io_id: id.match.params.id });
-  }, 1500);
-
   const [info, setInformation] = useState({
     operationMode: 0,
     moduleType: 0,
