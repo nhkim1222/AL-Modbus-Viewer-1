@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useTable } from "react-table";
 import { DataContainer } from "../Style";
 import { usePolling } from "../../Hooks/useIpcOn";
-
+const { ipcRenderer } = window.require("electron");
 const typeColor = {
   DI: "red",
   DO: "red",
@@ -15,6 +15,7 @@ const Table = styled.table`
   :even {
     background-color: grey;
   }
+  height: 300px;
 `;
 const TableHeaderRow = styled.th`
   border-bottom: solid 1px orange;
@@ -81,6 +82,8 @@ const ParseInfo = (val) => {
       return "Data Clear";
     case 10:
       return "Module Management";
+    default:
+      return "invalid";
   }
 };
 const SetupTypeParse = (val) => {
@@ -107,6 +110,63 @@ const SetupTypeParse = (val) => {
       return "Data Clear";
     case 10:
       return "Module Management";
+    default:
+      return "invalid";
+  }
+};
+
+const ModuleTypeParse = (val) => {
+  switch (val) {
+    case 0:
+      return "invalid";
+    case 1:
+      return "A2750IO-DI";
+    case 2:
+      return "A2750IO-DO";
+    case 3:
+      return "A2750IO-AI";
+    case 4:
+      return "A2750IO-DI2";
+    case 5:
+      return "A2750IO-DIO";
+    case 6:
+      return "A2750IO-DO2";
+    case 7:
+      return "A2750IO-AIO";
+    case 8:
+      return "A2750IO-AI2";
+    default:
+      return "invalid";
+  }
+};
+
+const ErrorTypeParse = (val) => {
+  switch (val) {
+    case 0:
+      return "NAMED_DATA_STORAGE_RESULT__SUCCESS";
+    case 1:
+      return "NAMED_DATA_STORAGE_RESULT__IO_ERROR";
+    case 2:
+      return "NAMED_DATA_STORAGE_RESULT__FORMAT_ERROR";
+    case 3:
+      return "NAMED_DATA_STORAGE_RESULT__CRC_ERROR";
+    case 4:
+      return "NAMED_DATA_STORAGE_RESULT__COMPARE_ERROR";
+    case 5:
+      return "NAMED_DATA_STORAGE_RESULT__NAME_TO_LONG";
+    default:
+      return "invalid";
+  }
+};
+
+const ClearParse = (val) => {
+  switch (val) {
+    case 1:
+      return "EVENT_DATA_CLEAR_MAX_MIN_DATA";
+    case 2:
+      return "EVENT_DATA_CLEAR_EVENT_DATA";
+    default:
+      return "invalid";
   }
 };
 const ModuleManagementParse = (
@@ -226,7 +286,7 @@ function LMEvents() {
     detail1: 0,
     detail2: 0,
     detail3: 0,
-    detatil4: 0,
+    detail4: 0,
   });
   const [events, setEvents] = useState([]);
 
@@ -241,26 +301,39 @@ function LMEvents() {
     // setEvents(events.concat(e));
     setLoading(false);
   }, []);
-
-  usePolling("set-event", (evt) => {
-    console.log(evt);
+  usePolling("set-event-fatch", (evt) => {
+    if(evt.remainingCount > 0)
+    {
+      ipcRenderer.send('get-event');
+    }
   });
 
-  // const type = ParseInfo(event.info);
-  // const content = ParseContent(
-  //   event.info,
-  //   event.detail,
-  //   event.detail1,
-  //   event.detail2,
-  //   event.detail3,
-  //   event.detail4
-  // );
-
-  // const data = {
-  //   type: type,
-  //   content: content,
-  // };
-  // setEvents(events.concat(data));
+  usePolling("set-event", (evt) => {
+    const new_events = evt.map(e =>  {
+      const type = ParseInfo(e.info);
+      const content = ParseContent(
+        e.info,
+        e.detail,
+        e.detail1,
+        e.detail2,
+        e.detail3,
+        e.detail4
+      );
+      const index = e.index;
+      const sec = new Date(e.sec*1000);
+  
+      const data = {
+        type: type,
+        contents: content,
+        index : index,
+        date : sec.toLocaleString('en', { timeZone: 'UTC' }),
+      };
+      return data;  
+    });
+    console.log(new_events);
+    setEvents(events.concat(new_events));
+  });
+ 
   // const data = useMemo(
   //   () => [
   //     {
@@ -306,7 +379,7 @@ function LMEvents() {
     []
   );
   if (!loading && events.length === 0) {
-    return <div> no event data avaliable</div>;
+    return <div> no event data avaliable </div>;
   }
 
   return (

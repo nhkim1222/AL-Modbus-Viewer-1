@@ -545,28 +545,56 @@ const set_pc_do_cmd = async (evt, { id, ch, value }) => {
     }
   }
 };
-
-const get_event = async (evt) => {
+const get_event_fatch = async (evt) => {
   if (modbusClient.isOpen) {
     try {
-      const { address, length, data: event } = Map.REG_EVENT_STATUS;
+      const { address, length, data: eventFatch } = Map.REG_EVENT_FATCH;
 
       const addr = address;
 
-      const replyChannel = "set-event";
+      const replyChannel = "set-event-fatch";
+      console.log(`remaining count read`);
       const { data } = await readRegister(addr, length);
 
-      event.info = data[0] | (data[1] << 16);
-      event.sec = data[2] | (data[3] << 16);
-      event.msec = data[4];
-      event.index = data[5];
-      event.detail = data[6] | (data[7] << 16);
-      event.detail1 = data[8] | (data[9] << 16);
-      event.detail2 = data[10] | (data[11] << 16);
-      event.detail3 = data[12] | (data[13] << 16);
-      event.detail4 = data[14] | (data[15] << 16);
+      eventFatch.fetchData = data[0];
+      eventFatch.remainingCount = data[1];
+      eventFatch.fetchedIndex = data[2] | (data[3] << 16);
+      console.log(`remaining count = ${eventFatch.remainingCount}`);
+      evt.reply(replyChannel, eventFatch);
+    } catch (err) {
+      handleError(evt);
+    }
+  }
+};
+const get_event = async (evt) => {
+  if (modbusClient.isOpen) {
+    try {
+      const arr = new Array();
 
-      evt.reply(replyChannel, event);
+      let remainingCount = 0;
+      const replyChannel = "set-event";
+      do{
+        const {data : event_fetch} = await readRegister(Map.REG_EVENT_FATCH.address, 3);
+        remainingCount = event_fetch[1];
+        const { address, length, data: event } = Map.REG_EVENT_STATUS;
+        const addr = address;
+        const { data } = await readRegister(addr, length);
+        const e = {
+          info: data[0] | (data[1] << 16),
+          sec : data[2] | (data[3] << 16),
+          msec : data[4],
+          index : data[5],
+          detail : data[6] | (data[7] << 16),
+          detail1 : data[8] | (data[9] << 16),
+          detail2 : data[10] | (data[11] << 16),
+          detail3 : data[12] | (data[13] << 16),
+          detail4 : data[14] | (data[15] << 16)
+        }
+        
+        arr.push(e);
+      } while(remainingCount > 0)
+      console.log(arr);
+      evt.reply(replyChannel, arr);
     } catch (err) {
       handleError(evt);
     }
@@ -587,7 +615,8 @@ export function initRegisterAccess() {
     await get_lm_di_status(evt);
     await get_lm_do_status(evt);
     await get_mismatch_alarm(evt);
-    await get_event(evt);
+    await get_event_fatch(evt);
+    //await get_event(evt);
   });
 
   ipcMain.on("request-io-data", async (evt, { io_id }) => {
@@ -611,7 +640,7 @@ export function initRegisterAccess() {
   ipcMain.on("request-lm-setup", async (evt, arg) => {
     await get_lm_setup(evt);
   });
-
+  ipcMain.on("get-event", get_event);
   ipcMain.on("set-lm-do-cmd", set_lm_do_cmd);
   ipcMain.on("set-lm-setup", set_lm_setup);
   ipcMain.on("set-io-do-cmd", set_io_do_cmd);

@@ -117,6 +117,7 @@ export const DataContainer = styled.div`
   flex-direction: row;
   overflow-y: scroll;
   width: 100%;
+  height: auto;
   flex-wrap: wrap;
   padding: 10px;
 `;

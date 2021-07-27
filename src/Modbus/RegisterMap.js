@@ -61,7 +61,7 @@ export const Map = {
   },
   REG_LM_DI_STATUS: {
     fc: 1,
-    address: 2001,
+    address: 2000,
     length: 18,
     data: {
       channel1: 0,
@@ -86,7 +86,7 @@ export const Map = {
   },
   REG_LM_DO_STATUS: {
     fc: 1,
-    address: 2349,
+    address: 2348,
     length: 9,
     data: {
       channel1: 0,
@@ -102,7 +102,7 @@ export const Map = {
   },
   REG_MISSMATCH_ALARM: {
     fc: 1,
-    address: 2000,
+    address: 1999,
     length: 1,
     data: {
       state: 0,
@@ -137,7 +137,7 @@ export const Map = {
   },
   REG_IO_DI_STATUS: {
     fc: 1,
-    address: 2019,
+    address: 2018,
     length: 22,
     data: {
       channel1: 0,
@@ -166,7 +166,7 @@ export const Map = {
   },
   REG_IO_DO_STATUS: {
     fc: 1,
-    address: 2358,
+    address: 2357,
     length: 12,
     data: {
       channel1: 0,
@@ -287,6 +287,16 @@ export const Map = {
       detail3:0,
       detail4:0,
 
+    },
+  },
+  REG_EVENT_FATCH: {
+    fc: 3,
+    address: 63710,
+    length: 4,
+    data: {
+      fetchData: 0,
+      remainingCount: 0,
+      fetchedIndex: 0,
     },
   },
 };
