@@ -37,7 +37,7 @@ function MainRouter({ match }) {
     if (isConnected) {
       ipcRenderer.send("request-lm-data", false);
     }
-  }, 5000);
+  }, 1500);
 
   return (
     <Container>

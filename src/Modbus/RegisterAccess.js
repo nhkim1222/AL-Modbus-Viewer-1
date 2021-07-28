@@ -192,7 +192,7 @@ const set_lm_do_cmd = (evt, { ch, value }) => {
   const buf = value;
   if (modbusClient.isOpen) {
     try {
-      modbusClient.writeCoil(2347 + ch, buf);
+      modbusClient.writeCoil(2346 + ch, buf);
     } catch (err) {
       handleError(evt);
     }
@@ -358,7 +358,7 @@ const set_io_do_cmd = async (evt, { id, ch, value }) => {
   if (modbusClient.isOpen) {
     try {
       await mutex.acquire();
-      const addr = 2357 + (id - 1) * 12 + (ch - 1);
+      const addr = 2356 + (id - 1) * 12 + (ch - 1);
       await modbusClient.writeCoil(addr, buf);
       mutex.release();
     } catch (err) {
@@ -591,9 +591,9 @@ const get_event = async (evt) => {
           detail4 : data[14] | (data[15] << 16)
         }
         
-        arr.push(e);
+        arr.unshift(e);
       } while(remainingCount > 0)
-      console.log(arr);
+      
       evt.reply(replyChannel, arr);
     } catch (err) {
       handleError(evt);
@@ -615,7 +615,7 @@ export function initRegisterAccess() {
     await get_lm_di_status(evt);
     await get_lm_do_status(evt);
     await get_mismatch_alarm(evt);
-    await get_event_fatch(evt);
+    //await get_event_fatch(evt);
     //await get_event(evt);
   });
 

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useTable } from "react-table";
 import { DataContainer } from "../Style";
 import { usePolling } from "../../Hooks/useIpcOn";
+import ApplyButton from "../ApplyButton";
 const { ipcRenderer } = window.require("electron");
 const typeColor = {
   DI: "red",
@@ -15,7 +16,8 @@ const Table = styled.table`
   :even {
     background-color: grey;
   }
-  height: 300px;
+  vertical-align: top;
+  overflow-y: scroll;
 `;
 const TableHeaderRow = styled.th`
   border-bottom: solid 1px orange;
@@ -56,6 +58,20 @@ const TypeLabel = styled.div`
   color: white;
   background-color: ${(props) => typeColor[props.type]};
   border-radius: 2px;
+`;
+const MainContainer = styled.div`
+  height: 100%;
+  width: 100%;
+`
+const ButtonContainer = styled.div`
+  height: auto;
+  padding: 5px;
+`
+
+const Container = styled.div`
+  overflow: scroll;
+  height: 90%;
+  width: 100%;
 `;
 const ParseInfo = (val) => {
   const eventType = (val >> 23) & 0x1f;
@@ -116,6 +132,8 @@ const SetupTypeParse = (val) => {
 };
 
 const ModuleTypeParse = (val) => {
+  
+  console.log(val);
   switch (val) {
     case 0:
       return "invalid";
@@ -236,16 +254,17 @@ const ParseContent = (val, detail, detail1, detail2, detail3, detail4) => {
       return `Module id = ${moduleID} Channel = ${ch} AO state = ${detail1} -> ${detail}`;
     }
     case 5: {
-      const setupType = SetupTypeParse((val >> 16) & 0x7f);
+      const setupType = SetupTypeParse((val >> 16) & 0xf);
       const moduleID = (val >> 10) & 0x3f;
       const ch = val & 0x3ff;
       return `Setup type = ${setupType} Module ID = ${moduleID} Channel = ${ch}  ${detail1} -> ${detail}`;
     }
     case 6: {
-      const Type = ModuleTypeParse((val >> 19) & 0x7f);
+      console.log(val);
+      const Type = ModuleTypeParse((val >> 19) & 0xf);
       const connectionState =
         ((detail >> 16) & 0xffff) === 1 ? "Connected" : "DisConnected";
-      const moduleID = val & 0xffff;
+      const moduleID = detail & 0xffff;
       return `Module type = ${Type} Module ID = ${moduleID} Module ${connectionState} `;
     }
     case 7: {
@@ -302,14 +321,13 @@ function LMEvents() {
     setLoading(false);
   }, []);
   usePolling("set-event-fatch", (evt) => {
-    if(evt.remainingCount > 0)
-    {
-      ipcRenderer.send('get-event');
+    if (evt.remainingCount > 0) {
+      //ipcRenderer.send('get-event');
     }
   });
 
   usePolling("set-event", (evt) => {
-    const new_events = evt.map(e =>  {
+    const new_events = evt.map((e) => {
       const type = ParseInfo(e.info);
       const content = ParseContent(
         e.info,
@@ -320,20 +338,28 @@ function LMEvents() {
         e.detail4
       );
       const index = e.index;
-      const sec = new Date(e.sec*1000);
-  
+      const sec = new Date(e.sec * 1000);
+
       const data = {
         type: type,
         contents: content,
-        index : index,
-        date : sec.toLocaleString('en', { timeZone: 'UTC' }),
+        index: index,
+        date: sec.toLocaleString("en", { timeZone: "UTC" }),
       };
-      return data;  
+      return data;
     });
-    console.log(new_events);
-    setEvents(events.concat(new_events));
+    
+    setEvents([...new_events,...events]);
+    // setEvents(arr=>  {
+    //   new_events.map(e => {
+    //     events.push(e);
+    //   });
+    //   console.log(events);
+    //   return events;
+    // })
+    //setLoading(true);
   });
- 
+
   // const data = useMemo(
   //   () => [
   //     {
@@ -378,15 +404,32 @@ function LMEvents() {
     ],
     []
   );
+  const clickEvent = () => {
+    ipcRenderer.send("get-event");
+  };
+  
+  console.log(loading);
+  console.log(events.length);
   if (!loading && events.length === 0) {
-    return <div> no event data avaliable </div>;
+    return (
+      <div>
+        {" "}
+        no event data avaliable
+        <ApplyButton onClick={clickEvent} name="Apply"/>
+      </div>
+    );
   }
 
   return (
-    <DataContainer>
-      {loading && <span> please wait we ar fetching data</span>}
-      <EventTable columns={columns} data={events} />
-    </DataContainer>
+    <MainContainer>
+      <ButtonContainer>
+        {loading && <span> please wait we ar fetching data</span>}
+        <ApplyButton onClick={clickEvent} name="Apply"/>
+      </ButtonContainer>
+      <Container>
+        <EventTable columns={columns} data={events} />
+      </Container>
+    </MainContainer>
   );
 }
 
