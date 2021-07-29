@@ -20,9 +20,23 @@ function IOModule(id) {
     operationMode: 0,
     moduleType: 0,
   });
+  const [isConnected, setIsConnected] = useState(false);
 
+  useEffect(() => {
+    ipcRenderer.on("server-connection-state", (evt, isConnected) => {
+      if (isConnected === false) {
+        setIsConnected(false);
+      } else {
+        setIsConnected(true);
+      }
+    });
+  }, []);
   usePolling("set-io-information", setInformation);
-
+  useInterval(() => {
+    if (isConnected) {
+      ipcRenderer.send("request-io-data", {io_id: id.match.params.id});
+    }
+  }, 1500);
   return (
     <Container>
       <IOInformation id={id.match.params.id} />

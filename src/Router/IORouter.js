@@ -26,11 +26,7 @@ function IORouter() {
       }
     });
   }, []);
-  useInterval(() => {
-    if (isConnected) {
-      ipcRenderer.send("request-io-data", false);
-    }
-  }, 1500);
+
   return (
     <Container>
       <IOMenu></IOMenu>

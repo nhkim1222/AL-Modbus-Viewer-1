@@ -234,8 +234,15 @@ const ParseContent = (val, detail, detail1, detail2, detail3, detail4) => {
       const diState =
         ((val >> 20) & 0x7) === 0x1 ? "Energized" : "De-Energized";
       const moduleID = (val >> 16) & 0xf;
+
       const ch = val & 0xffff;
-      return `Module id = ${moduleID} Channel = ${ch} DI state = ${diState}`;
+
+      if (moduleID == 0) {
+        return `LM Channel = ${ch} DI state = ${diState}`;
+      } else {
+        return `Module id = ${moduleID} Channel = ${ch} DI state = ${diState}`;
+      }
+      
     }
     case 2: {
       const doState = ((val >> 20) & 0x7) === 0x1 ? "Closed" : "Open";
@@ -246,18 +253,18 @@ const ParseContent = (val, detail, detail1, detail2, detail3, detail4) => {
     case 3: {
       const moduleID = (val >> 16) & 0xf;
       const ch = val & 0xffff;
-      return `Module id = ${moduleID} Channel = ${ch} AI state = ${detail1} -> ${detail}`;
+      return `Module id = ${moduleID} Channel = ${ch} AI state = ${detail} -> ${detail1}`;
     }
     case 4: {
       const moduleID = (val >> 16) & 0xf;
       const ch = val & 0xffff;
-      return `Module id = ${moduleID} Channel = ${ch} AO state = ${detail1} -> ${detail}`;
+      return `Module id = ${moduleID} Channel = ${ch} AO state = ${detail} -> ${detail1}`;
     }
     case 5: {
       const setupType = SetupTypeParse((val >> 16) & 0xf);
       const moduleID = (val >> 10) & 0x3f;
       const ch = val & 0x3ff;
-      return `Setup type = ${setupType} Module ID = ${moduleID} Channel = ${ch}  ${detail1} -> ${detail}`;
+      return `Setup type = ${setupType} Module ID = ${moduleID} Channel = ${ch}  ${detail} -> ${detail1}`;
     }
     case 6: {
       console.log(val);
