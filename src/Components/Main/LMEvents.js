@@ -133,7 +133,6 @@ const SetupTypeParse = (val) => {
 
 const ModuleTypeParse = (val) => {
   
-  console.log(val);
   switch (val) {
     case 0:
       return "invalid";
@@ -195,6 +194,7 @@ const ModuleManagementParse = (
   detail3,
   detail4
 ) => {
+  
   switch (type) {
     case 0:
       return "invalid";
@@ -267,7 +267,6 @@ const ParseContent = (val, detail, detail1, detail2, detail3, detail4) => {
       return `Setup type = ${setupType} Module ID = ${moduleID} Channel = ${ch}  ${detail} -> ${detail1}`;
     }
     case 6: {
-      console.log(val);
       const Type = ModuleTypeParse((val >> 19) & 0xf);
       const connectionState =
         ((detail >> 16) & 0xffff) === 1 ? "Connected" : "DisConnected";
@@ -288,7 +287,7 @@ const ParseContent = (val, detail, detail1, detail2, detail3, detail4) => {
       return ` ${Type}  source =  ${source}`;
     }
     case 10: {
-      const type = (val >> 16) & 0x3;
+      const type = (val >> 16) & 0x7;
       return ModuleManagementParse(
         type,
         detail,
@@ -415,8 +414,8 @@ function LMEvents() {
     ipcRenderer.send("get-event");
   };
   
-  console.log(loading);
-  console.log(events.length);
+  // console.log(loading);
+  // console.log(events.length);
   if (!loading && events.length === 0) {
     return (
       <div>
