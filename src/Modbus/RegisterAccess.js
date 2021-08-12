@@ -545,6 +545,7 @@ const set_pc_do_cmd = async (evt, { id, ch, value }) => {
     }
   }
 };
+
 const get_event_fatch = async (evt) => {
   if (modbusClient.isOpen) {
     try {
@@ -566,6 +567,7 @@ const get_event_fatch = async (evt) => {
     }
   }
 };
+
 const get_event = async (evt) => {
   if (modbusClient.isOpen) {
     try {
@@ -573,27 +575,30 @@ const get_event = async (evt) => {
 
       let remainingCount = 0;
       const replyChannel = "set-event";
-      do{
-        const {data : event_fetch} = await readRegister(Map.REG_EVENT_FATCH.address, 3);
+      do {
+        const { data: event_fetch } = await readRegister(
+          Map.REG_EVENT_FATCH.address,
+          3
+        );
         remainingCount = event_fetch[1];
         const { address, length, data: event } = Map.REG_EVENT_STATUS;
         const addr = address;
         const { data } = await readRegister(addr, length);
         const e = {
           info: data[0] | (data[1] << 16),
-          sec : data[2] | (data[3] << 16),
-          msec : data[4],
-          index : data[5],
-          detail : data[6] | (data[7] << 16),
-          detail1 : data[8] | (data[9] << 16),
-          detail2 : data[10] | (data[11] << 16),
-          detail3 : data[12] | (data[13] << 16),
-          detail4 : data[14] | (data[15] << 16)
-        }
-        
+          sec: data[2] | (data[3] << 16),
+          msec: data[4],
+          index: data[5],
+          detail: data[6] | (data[7] << 16),
+          detail1: data[8] | (data[9] << 16),
+          detail2: data[10] | (data[11] << 16),
+          detail3: data[12] | (data[13] << 16),
+          detail4: data[14] | (data[15] << 16),
+        };
+
         arr.unshift(e);
-      } while(remainingCount > 0)
-      
+      } while (remainingCount > 0);
+
       evt.reply(replyChannel, arr);
     } catch (err) {
       handleError(evt);

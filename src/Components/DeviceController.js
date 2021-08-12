@@ -6,6 +6,7 @@ import ApplyButton from "./ApplyButton";
 import LMAlarm from "./Main/LMAlarm";
 import Modal from "./CustomModal";
 import { useInterval } from "../Hooks/useInterval";
+import SerialForm from "../Views/SerialForm";
 const { ipcRenderer } = window.require("electron");
 
 const pattern =
@@ -94,7 +95,7 @@ function DeviceController() {
   const [state, setState] = useState(STATE_DISCONNECTED);
   const [serialList, setSerialList] = useState([]);
   const { register, handleSubmit, watch, errors } = useForm();
-
+  const [commType, setCommType] = useState("TCP");
   useEffect(() => {
     ipcRenderer.on("resp-connect-to-server", (evt, arg) => {
       const { connectState, ip } = arg;
@@ -161,7 +162,12 @@ function DeviceController() {
   const closeModal = () => {
     setIsOpen(false);
   };
-
+  const selectTcp = (e) => {
+    setCommType("TCP");
+  };
+  const selectRtu = (e) => {
+    setCommType("RTU");
+  };
   return (
     <Container>
       <InfoLabel>device IP</InfoLabel>
@@ -172,23 +178,46 @@ function DeviceController() {
       <ApplyButton name="change connect" onClick={openModal} />
       <LMAlarm></LMAlarm>
       <Modal open={modelIsOpen} close={closeModal}>
-        <IPForm onSubmit={handleSubmit(onSubmit, onError)}>
-          <IPLabel>ip address</IPLabel>
-          <Input
-            type="text"
-            defaultValue="0.0.0.0"
-            placeholder="ip address"
-            {...register("ipAddress", {
-              pattern: {
-                value: pattern,
-                message: "invalid ip address",
-              },
-              required: true,
-            })}
-          />
+        <Container>
+          <div>
+            <input
+              type="radio"
+              name="comm_type"
+              value="TCP"
+              onChange={selectTcp}
+            />
+            <label>TCP</label>
+            <input
+              type="radio"
+              name="comm_type"
+              value="RTU"
+              onChange={selectRtu}
+            />
+            <label>RTU</label>
+          </div>
 
-          <ApplyButton>Apply</ApplyButton>
-        </IPForm>
+          {commType === "TCP" ? (
+            <IPForm onSubmit={handleSubmit(onSubmit, onError)}>
+              <IPLabel>ip address</IPLabel>
+              <Input
+                type="text"
+                defaultValue="0.0.0.0"
+                placeholder="ip address"
+                {...register("ipAddress", {
+                  pattern: {
+                    value: pattern,
+                    message: "invalid ip address",
+                  },
+                  required: true,
+                })}
+              />
+
+              <ApplyButton>Apply</ApplyButton>
+            </IPForm>
+          ) : (
+            <SerialForm></SerialForm>
+          )}
+        </Container>
       </Modal>
     </Container>
   );

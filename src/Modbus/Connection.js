@@ -2,9 +2,10 @@ import ModbusRTU from "modbus-serial";
 import { ipcMain } from "electron";
 import { release } from "./RegisterAccess";
 import SerialPort from "serialport";
+import { EventFetcher } from "./EventManagement";
 
 export const modbusClient = new ModbusRTU();
-export var Protocol = 'none';
+export var Protocol = "none";
 
 export async function connectServer({ ip, port }) {
   release();
@@ -17,14 +18,16 @@ export async function connectServer({ ip, port }) {
     console.log(`try to connect : ${ip}`);
     modbusClient.setTimeout(5000);
     await modbusClient.connectTCP(ip, { port });
-    Protocol = 'tcp';
+    let e = new EventFetcher(modbusClient);
+    e.start();
+    Protocol = "tcp";
     return true;
   } catch (err) {
     return false;
   }
 }
 
-export async function connectServerRTU({serial, baudrate, stopbit, parity}) {
+export async function connectServerRTU({ serial, baudrate, stopbit, parity }) {
   release();
   if (modbusClient.isOpen) {
     console.log("connect server: isOpened");
@@ -37,13 +40,11 @@ export async function connectServerRTU({serial, baudrate, stopbit, parity}) {
     await modbusClient.connectRTU(serial, {
       baudRate: baudrate,
       stopBits: stopbit,
-      parity: parity
+      parity: parity,
     });
-    Protocol = 'rtu';
+    Protocol = "rtu";
     return true;
-
   } catch (err) {
-
     return false;
   }
 }
@@ -61,23 +62,24 @@ export function initServer() {
       evt.reply("resp-connect-to-server", { connectState: false, ip });
     }
   });
-  
+
   ipcMain.on("connect-to-server-rtu", async (evt, arg) => {
     const { serial, baudrate, stopbit, parity } = arg;
     try {
-      const state = await connectServerRTU({serial, baudrate, stopbit, parity});
-      
-      evt.reply("resp-connect-to-server", { connectState: state, ip: serial });
-    } catch (err) {
+      const state = await connectServerRTU({
+        serial,
+        baudrate,
+        stopbit,
+        parity,
+      });
 
-    }
+      evt.reply("resp-connect-to-server", { connectState: state, ip: serial });
+    } catch (err) {}
   });
 
   ipcMain.on("get-connect-server-state", (evt, arg) => {
     evt.reply("server-connection-state", modbusClient.isOpen);
   });
-
-  
 
   ipcMain.on("disconnect-to-server", (evt, callback) => {
     if (modbusClient.isOpen) {

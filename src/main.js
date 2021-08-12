@@ -3,11 +3,29 @@ const path = require("path");
 const { connectServer, initServer } = require("./Modbus/Connection");
 const { initRegisterAccess } = require("./Modbus/RegisterAccess");
 const isDev = require("electron-is-dev");
+const { initApi } = require("./Modbus/Api");
+
+const env = process.env.NODE_ENV || "development";
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   // eslint-disable-line global-require
   app.quit();
 }
+
+// require("electron-reload")(__dirname, {
+//   electron: path.join(__dirname, "node_modules", ".bin", "electron"),
+//   hardResetMethod: "exit",
+// });
+
+// try {
+//   require("electron-reloader")(module, {
+//     debug: true,
+//     watchRenderer: true,
+//   });
+// } catch (_) {
+//   console.log("Error");
+// }
 
 const createWindow = () => {
   // Create the browser window.
@@ -38,6 +56,7 @@ const createWindow = () => {
 
   initRegisterAccess();
   initServer();
+  initApi();
 };
 
 // This method will be called when Electron has finished
