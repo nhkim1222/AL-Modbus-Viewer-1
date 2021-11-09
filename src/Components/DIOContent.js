@@ -41,13 +41,14 @@ const Title = styled.div`
   font-size: 10px;
 `;
 
-export const DIContent = ({ ch, value, on, priority }) => {
+export const DIContent = ({ ch, value, on, priority, setCommand }) => {
   return (
     <Container>
       <Title>channel {ch}</Title>
       <DIValue value={value} priority="high">
         {value ? "Energized" : "De-energized"}
       </DIValue>
+      <button onClick={() => setCommand({ ch, value })}>test set</button>
     </Container>
   );
 };

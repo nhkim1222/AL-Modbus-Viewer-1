@@ -106,31 +106,66 @@ const SetupTypeParse = (val) => {
   switch (val) {
     case 0:
       return "invalid";
-    case 1:
-      return "used logic";
-    case 2:
-      return "Protection";
-    case 3:
-      return "Control";
-    case 4:
-      return "IO";
     case 5:
-      return "Setup Change";
-    case 6:
-      return "Module Connection";
-    case 7:
-      return "Redundancy";
-    case 8:
-      return "Self-Diagnosis";
-    case 9:
-      return "Data Clear";
-    case 10:
-      return "Module Management";
+      return "ID Change";
+    case 34:
+      return "Evnet Enanle Flag";
+    case 35:
+      return "AI DeadBand";
+    case 36:
+      return "AO DeadBand";
+    case 37:
+      return "LM DISPLAY DEVICE LED PERIOD";
+    case 38:
+      return "LM DISPLAY DEVICE LED On Time";
+    case 39:
+      return "LM DISPLAY RS485 LED PERIOD";
+    case 40:
+      return "LM DISPLAY RS485 LED On TIme";
+    case 41:
+      return "LD DISPLAY MODULE LED PERIOD";
+    case 42:
+      return "LD DISPLAY MODULE LED On Time";
+    case 43:
+      return "LD DISPLAY RS485 LED PERIOD";
+    case 44:
+      return "LD DISPLAY RS485 LED On TIme";
+    case 45:
+      return "LD DISPLAY EVENT LED PERIOD";
+    case 46:
+      return "LD DISPLAY EVENT LED On TIme";
+    case 47:
+      return "Local Time";
+    case 48:
+      return "RS485 Device Address";
+    case 49:
+      return "RS485 BaudRate";
+    case 50:
+      return "RS485 Parity";      
+    case 51:
+      return "RS485 StopBits";      
+    case 52:
+      return "Control Channel";       
+    case 53:
+      return "Password";
     default:
       return "invalid";
   }
 };
-
+const SetupSourceParse = (val) => {
+  switch (val) {
+    case 0:
+      return "invalid";
+    case 1:
+      return "A2750LMH";
+    case 2:
+      return "A2750LDH";
+    case 3:
+      return "HOST";
+    case 4:
+      return "RS485";
+  }
+};
 const ModuleTypeParse = (val) => {
   
   switch (val) {
@@ -152,7 +187,12 @@ const ModuleTypeParse = (val) => {
       return "A2750IO-AIO";
     case 8:
       return "A2750IO-AI2";
+    case 9:
+      return "HOST"
+    case 10:
+      return "LDH"
     default:
+      console.log(`invalid ${val}`);
       return "invalid";
   }
 };
@@ -170,7 +210,7 @@ const ErrorTypeParse = (val) => {
     case 4:
       return "NAMED_DATA_STORAGE_RESULT__COMPARE_ERROR";
     case 5:
-      return "NAMED_DATA_STORAGE_RESULT__NAME_TO_LONG";
+      return "EVENT_SELF_DIAGNOSIS_MODULE_OVER";
     default:
       return "invalid";
   }
@@ -186,6 +226,33 @@ const ClearParse = (val) => {
       return "invalid";
   }
 };
+const ModuleMEventParse =(
+  count,
+  detail,
+  detail1,
+  detail2,
+  detail3,
+  detail4
+) => {
+  switch(count){
+    case 1:
+      return `module type = ${ModuleTypeParse((detail1 >> 16) & 0xffff)} , Module ID = ${detail1 & 0xffff}`;
+    case 2:
+      return `module 1 type = ${ModuleTypeParse((detail1 >> 16) & 0xffff)} , Module 1 ID = ${detail1 & 0xffff} , 
+               module 2 type = ${ModuleTypeParse((detail2 >> 16) & 0xffff)} , Module 2 ID = ${detail2 & 0xffff}`;
+    case 3:
+      return `module 1 type = ${ModuleTypeParse(
+        (detail1 >> 16) & 0xffff)} , Module 1 ID = ${detail1 & 0xffff} ,  module 2 type = ${ModuleTypeParse(
+          (detail2 >> 16) & 0xffff)} , Module 2 ID = ${detail2 & 0xffff},  module 3 type = ${ModuleTypeParse(
+            (detail3 >> 16) & 0xffff)} , Module 3 ID = ${detail3 & 0xffff}`;
+    case 4:
+      return ` module 1 type = ${ModuleTypeParse(
+        (detail1 >> 16) & 0xffff)} , Module 1 ID = ${detail1 & 0xffff} ,  module 2 type = ${ModuleTypeParse(
+          (detail2 >> 16) & 0xffff)} , Module 2 ID = ${detail2 & 0xffff},  module 3 type = ${ModuleTypeParse(
+            (detail3 >> 16) & 0xffff)} , Module 3 ID = ${detail3 & 0xffff}, module 4 type = ${ModuleTypeParse(
+              (detail4 >> 16) & 0xffff)} , Module 4 ID = ${detail4 & 0xffff}`;
+  }
+};
 const ModuleManagementParse = (
   type,
   detail,
@@ -199,29 +266,22 @@ const ModuleManagementParse = (
     case 0:
       return "invalid";
     case 1:
-      return `Storing Module Connection Count= ${detail}, ${detail1}`;
+      return `Storing Module Connection Count= ${detail}`;
     case 2:
-      return `Missing Module Count= ${detail}, module type = ${ModuleTypeParse(
-        (detail1 >> 16) & 0xffff
-      )} , Module ID = ${detail1 & 0xffff} `;
+      const moduleCnt = detail;
+      return `Missing Module Count= ${moduleCnt},  ${ModuleMEventParse(moduleCnt, detail, detail1, detail2,detail3,detail4)}`;
     case 3:
-      return `Reconnected Module Count= ${detail}, module type = ${ModuleTypeParse(
-        (detail1 >> 16) & 0xffff
-      )} , Module ID = ${detail1 & 0xffff} `;
-    case 4:
-      return `Added Module Count= ${detail}, module type = ${ModuleTypeParse(
-        (detail1 >> 16) & 0xffff
-      )} , Module ID = ${detail1 & 0xffff} `;
+      const moduleCnt1 = detail;
+      return `Reconnected Module Count= ${moduleCnt1}, ${ModuleMEventParse(moduleCnt1, detail, detail1, detail2,detail3,detail4)}`;
+    case 4:      
+      const moduleCnt2 = detail;
+      return `Added Module Count= ${moduleCnt2}, ${ModuleMEventParse(moduleCnt2, detail, detail1, detail2,detail3,detail4)}`;
     case 5:
-      return `Confilct Module Count= ${detail}, module type = ${ModuleTypeParse(
-        (detail1 >> 16) & 0xffff
-      )} , Module ID = ${detail1 & 0xffff} `;
+      return `Confilct Module Count= ${detail}, Module ID = ${detail1 & 0xffff} `;
     case 6:
       return `Zero Module Count= ${detail},  Module ID = ${detail1 & 0xffff} `;
     case 7:
-      return `Invaild Module Count= ${detail},  Module ID = ${
-        detail1 & 0xffff
-      } `;
+      return `Invaild Module Count= ${detail},  Module ID = ${detail1 & 0xffff} `;
   }
 };
 const ParseContent = (val, detail, detail1, detail2, detail3, detail4) => {
@@ -248,7 +308,11 @@ const ParseContent = (val, detail, detail1, detail2, detail3, detail4) => {
       const doState = ((val >> 20) & 0x7) === 0x1 ? "Closed" : "Open";
       const moduleID = (val >> 16) & 0xf;
       const ch = val & 0xffff;
-      return `Module id = ${moduleID} Channel = ${ch} DO state = ${doState}`;
+      if (moduleID == 0) {
+        return `LM Channel = ${ch} DO state = ${doState}`;
+      } else {
+        return `Module id = ${moduleID} Channel = ${ch} DO state = ${doState}`;
+      }
     }
     case 3: {
       const moduleID = (val >> 16) & 0xf;
@@ -261,10 +325,11 @@ const ParseContent = (val, detail, detail1, detail2, detail3, detail4) => {
       return `Module id = ${moduleID} Channel = ${ch} AO state = ${detail} -> ${detail1}`;
     }
     case 5: {
-      const setupType = SetupTypeParse((val >> 16) & 0xf);
+      const setupType = SetupTypeParse((val >> 16) & 0x7f);
       const moduleID = (val >> 10) & 0x3f;
-      const ch = val & 0x3ff;
-      return `Setup type = ${setupType} Module ID = ${moduleID} Channel = ${ch}  ${detail} -> ${detail1}`;
+      const ch = val & 0x3f0;
+      const source = SetupSourceParse(val & 0xf);
+      return `Setup type = ${setupType} Module ID = ${moduleID} Channel = ${ch} Source = ${source}  Value = ${detail} -> ${detail1}`;
     }
     case 6: {
       const Type = ModuleTypeParse((val >> 19) & 0xf);

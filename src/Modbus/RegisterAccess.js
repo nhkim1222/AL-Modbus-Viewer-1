@@ -2,6 +2,7 @@ import { ipcMain } from "electron";
 import { modbusClient, Protocol } from "./Connection";
 import { MapForRTU, Map } from "./RegisterMap";
 import Mutex from "../Hooks/Mutex";
+import { parseIOProductInformation } from "./A2750LM.Model";
 
 const debug = false;
 
@@ -25,7 +26,9 @@ Array.prototype.ToIntReverse = (index) => {
   return (this[index] << 16) | this[index + 1];
 };
 const mutex = new Mutex();
-
+const changeMap = async (map) => {
+  const result = await modbusClient.writeRegister(65535-1, map);
+}
 const handleError = (evt, err) => {
   console.log(`handle error = ${err} ${evt}`);
   // modbusClient.close(() => {
@@ -199,6 +202,17 @@ const set_lm_do_cmd = (evt, { ch, value }) => {
   }
 };
 
+const set_lm_di_test_cmd = (evt, { ch, value }) => {
+  const buf = value;
+  if (modbusClient.isOpen) {
+    try {
+      modbusClient.writeCoil(2598 + ch, buf);
+    } catch (err) {
+      handleError(evt);
+    }
+  }
+};
+
 const get_mismatch_alarm = async (evt, payload) => {
   if (modbusClient.isOpen) {
     try {
@@ -262,10 +276,8 @@ const get_io_information = async (evt, { io_id }) => {
       const { address, length, data: information } = Map.REG_IO_INFORMATION;
 
       const addr = address + (io_id - 1) * length;
-
       const replyChannel = "set-io-information";
       const { data } = await readRegister(addr, length);
-
       information.operationState = data[0];
       information.moduleType = data[1];
       information.serialNumber = data[2] | (data[3] << 16);
@@ -274,6 +286,7 @@ const get_io_information = async (evt, { io_id }) => {
       information.bootloaderVersion = data[6];
       information.hardwareRevision = data[7];
       information.pcbVersion = data[8];
+      console.log(`io_id = ${io_id}, module type = ${information.moduleType}`)
 
       evt.reply(replyChannel, information);
     } catch (err) {
@@ -366,7 +379,30 @@ const set_io_do_cmd = async (evt, { id, ch, value }) => {
     }
   }
 };
+const set_iom_di_test_cmd = async (evt, { id, type, ch, value }) => {
+  const buf = [type,0, ch, 0,value];
+  if (modbusClient.isOpen) {
+    try {
+      await mutex.acquire();
+      
+      changeMap(10000);
 
+      const addr = 2618 + (id - 1) * 12 + (ch - 1);
+      console.log(
+        `id : ${id} addr: ${addr}, data: ${buf}`
+      );
+      
+
+      await modbusClient.writeRegisters(addr, buf);
+
+      changeMap(0);
+      mutex.release();
+    } catch (err) {
+      handleError(evt);
+      mutex.release();
+    }
+  }
+};
 const get_io_ai_status = async (evt, { io_id }) => {
   if (modbusClient.isOpen) {
     try {
@@ -576,9 +612,14 @@ const get_event = async (evt) => {
       do{
         const {data : event_fetch} = await readRegister(Map.REG_EVENT_FATCH.address, 3);
         remainingCount = event_fetch[1];
+        
+        console.log(`remaining count = ${remainingCount}`);
+
         const { address, length, data: event } = Map.REG_EVENT_STATUS;
+
         const addr = address;
-        const { data } = await readRegister(addr, length);
+        const { data } = await readRegister(addr, 16);
+        
         const e = {
           info: data[0] | (data[1] << 16),
           sec : data[2] | (data[3] << 16),
@@ -590,7 +631,7 @@ const get_event = async (evt) => {
           detail3 : data[12] | (data[13] << 16),
           detail4 : data[14] | (data[15] << 16)
         }
-        
+        console.log(e.info.toString(16));
         arr.unshift(e);
       } while(remainingCount > 0)
       
@@ -643,6 +684,8 @@ export function initRegisterAccess() {
   ipcMain.on("get-event", get_event);
   ipcMain.on("set-lm-do-cmd", set_lm_do_cmd);
   ipcMain.on("set-lm-setup", set_lm_setup);
+  ipcMain.on("set-lm-di-test-cmd", set_lm_di_test_cmd);
+  ipcMain.on("set-iom-di-test-cmd", set_iom_di_test_cmd);
   ipcMain.on("set-io-do-cmd", set_io_do_cmd);
   ipcMain.on("set-pc-do-cmd", set_pc_do_cmd);
 }

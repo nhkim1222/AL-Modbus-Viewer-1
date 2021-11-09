@@ -3,8 +3,18 @@ import { ContentBox, TitleLabel } from "../Style";
 import { usePolling } from "../../Hooks/useIpcOn";
 import { DIContent } from "../DIOContent";
 
-function IODigitalInput(params) {
+function IODigitalInput(params) {  
   const { id } = params;
+  const type  = 5;
+  const setCommand = ({ ch, value }) => {
+    const data = {
+      id,
+      type,
+      ch,
+      value: value ? false : true,
+    };
+    ipcRenderer.send("set-iom-di-test-cmd", data);
+  };
 
   const [diStatus, setDiStatus] = useState({
     channel1: false,
@@ -26,17 +36,17 @@ function IODigitalInput(params) {
   return (
     <ContentBox>
       <TitleLabel>Digital Input</TitleLabel>
-      <DIContent ch={1} value={diStatus.channel1} />
-      <DIContent ch={2} value={diStatus.channel2} />
-      <DIContent ch={3} value={diStatus.channel3} />
-      <DIContent ch={4} value={diStatus.channel4} />
-      <DIContent ch={5} value={diStatus.channel5} />
-      <DIContent ch={6} value={diStatus.channel6} />
-      <DIContent ch={7} value={diStatus.channel7} />
-      <DIContent ch={8} value={diStatus.channel8} />
-      <DIContent ch={9} value={diStatus.channel9} />
-      <DIContent ch={10} value={diStatus.channel10} />
-      <DIContent ch={11} value={diStatus.channel11} />
+      <DIContent ch={1} value={diStatus.channel1} setCommand={setCommand}/>
+      <DIContent ch={2} value={diStatus.channel2} setCommand={setCommand}/>
+      <DIContent ch={3} value={diStatus.channel3} setCommand={setCommand}/>
+      <DIContent ch={4} value={diStatus.channel4} setCommand={setCommand}/>
+      <DIContent ch={5} value={diStatus.channel5} setCommand={setCommand}/>
+      <DIContent ch={6} value={diStatus.channel6} setCommand={setCommand}/>
+      <DIContent ch={7} value={diStatus.channel7} setCommand={setCommand}/>
+      <DIContent ch={8} value={diStatus.channel8} setCommand={setCommand}/>
+      <DIContent ch={9} value={diStatus.channel9} setCommand={setCommand}/>
+      <DIContent ch={10} value={diStatus.channel10} setCommand={setCommand}/>
+      <DIContent ch={11} value={diStatus.channel11} setCommand={setCommand}/>
     </ContentBox>
   );
 }

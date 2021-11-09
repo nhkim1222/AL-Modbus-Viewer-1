@@ -5,8 +5,8 @@ import { ContentBox, TitleLabel } from "../Style";
 import { usePolling } from "../../Hooks/useIpcOn";
 
 const operation_state = (val) => {
-  if (val === 1) return "Bootloader";
-  if (val === 2) return "Application";
+  if (val === 2) return "Bootloader";
+  if (val === 3) return "Application";
   return "UNIDENIFIED";
 };
 

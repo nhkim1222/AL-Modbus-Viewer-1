@@ -5,6 +5,13 @@ import { CHANNEL_LM_DI_STATUS } from "../../Modbus/Channel";
 import { DIContent } from "../DIOContent";
 
 function LMDigitalInput() {
+  const setCommand = ({ ch, value }) => {
+    const data = {
+      ch,
+      value: value ? false : true,
+    };
+    ipcRenderer.send("set-lm-di-test-cmd", data);
+  };
   const [diStatus, setDiStatus] = useState({
     channel1: false,
     channel2: false,
@@ -31,24 +38,24 @@ function LMDigitalInput() {
   return (
     <ContentBox>
       <TitleLabel>Digital Input</TitleLabel>
-      <DIContent ch={1} value={diStatus.channel1} />
-      <DIContent ch={2} value={diStatus.channel2} />
-      <DIContent ch={3} value={diStatus.channel3} />
-      <DIContent ch={4} value={diStatus.channel4} />
-      <DIContent ch={5} value={diStatus.channel5} />
-      <DIContent ch={6} value={diStatus.channel6} />
-      <DIContent ch={7} value={diStatus.channel7} />
-      <DIContent ch={8} value={diStatus.channel8} />
-      <DIContent ch={9} value={diStatus.channel9} />
-      <DIContent ch={10} value={diStatus.channel10} />
-      <DIContent ch={11} value={diStatus.channel11} />
-      <DIContent ch={12} value={diStatus.channel12} />
-      <DIContent ch={13} value={diStatus.channel13} />
-      <DIContent ch={14} value={diStatus.channel14} />
-      <DIContent ch={15} value={diStatus.channel15} />
-      <DIContent ch={16} value={diStatus.channel16} />
-      <DIContent ch={17} value={diStatus.channel17} />
-      <DIContent ch={18} value={diStatus.channel18} />
+      <DIContent ch={1} value={diStatus.channel1} setCommand={setCommand}/>
+      <DIContent ch={2} value={diStatus.channel2} setCommand={setCommand}/>
+      <DIContent ch={3} value={diStatus.channel3} setCommand={setCommand}/>
+      <DIContent ch={4} value={diStatus.channel4} setCommand={setCommand}/>
+      <DIContent ch={5} value={diStatus.channel5} setCommand={setCommand}/>
+      <DIContent ch={6} value={diStatus.channel6} setCommand={setCommand}/>
+      <DIContent ch={7} value={diStatus.channel7} setCommand={setCommand}/>
+      <DIContent ch={8} value={diStatus.channel8} setCommand={setCommand}/>
+      <DIContent ch={9} value={diStatus.channel9} setCommand={setCommand}/>
+      <DIContent ch={10} value={diStatus.channel10} setCommand={setCommand}/>
+      <DIContent ch={11} value={diStatus.channel11} setCommand={setCommand}/>
+      <DIContent ch={12} value={diStatus.channel12} setCommand={setCommand}/>
+      <DIContent ch={13} value={diStatus.channel13} setCommand={setCommand}/>
+      <DIContent ch={14} value={diStatus.channel14} setCommand={setCommand}/>
+      <DIContent ch={15} value={diStatus.channel15} setCommand={setCommand}/>
+      <DIContent ch={16} value={diStatus.channel16} setCommand={setCommand}/>
+      <DIContent ch={17} value={diStatus.channel17} setCommand={setCommand}/>
+      <DIContent ch={18} value={diStatus.channel18} setCommand={setCommand}/>
     </ContentBox>
   );
 }

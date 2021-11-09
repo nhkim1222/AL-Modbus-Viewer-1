@@ -36,7 +36,7 @@ function IOModule(id) {
     if (isConnected) {
       ipcRenderer.send("request-io-data", {io_id: id.match.params.id});
     }
-  }, 1500);
+  }, 300);
   return (
     <Container>
       <IOInformation id={id.match.params.id} />

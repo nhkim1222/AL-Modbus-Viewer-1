@@ -3,7 +3,7 @@ export const Map = {
   /** lm register **/
   REG_LM_INFO: {
     fc: 3,
-    address: 63001,
+    address: 61501,
     length: 11,
     data: {
       operationState: "", //1w
@@ -17,7 +17,7 @@ export const Map = {
   },
   REG_LM_INFO_PARTNER: {
     fc: 3,
-    address: 63021,
+    address: 61513,
     length: 11,
     data: {
       operationState: "", //1w
@@ -31,7 +31,7 @@ export const Map = {
   },
   REG_LD_INFO: {
     fc: 3,
-    address: 63041,
+    address: 61525,
     length: 9,
     data: {
       operationState: 0,
@@ -46,7 +46,7 @@ export const Map = {
   },
   REG_LD_INFO_PARTNER: {
     fc: 3,
-    address: 63061,
+    address: 61539,
     length: 9,
     data: {
       operationState: 0,
@@ -120,9 +120,101 @@ export const Map = {
       alarmThreshold: 0,
     },
   },
+  REG_SETUP_USED_LOGIC: {
+    fc: 3,
+    address: 61875,
+    length: 2,
+    data: {
+      access : 0,
+      usedLogic: 0,
+    },
+  },
+  REG_SETUP_EVENT: {
+    fc: 3,
+    address: 61870,
+    length: 4,
+    data: {
+      access: 0,
+      eventEnableFlag : 0,
+      aiChangeDB: 0, 
+      aoChangeDB: 0, 
+    },
+  },
+  REG_SETUP_LM_LED: {
+    fc: 3,
+    address: 61832,
+    length: 5,
+    data: {
+      access: 0,
+      deviceLedPeriod : 0,
+      deviceLedOntime: 0, 
+      rs485LedPeriod : 0,
+      rs485LedOntime: 0, 
+    },
+  },
+  REG_SETUP_LD_LED: {
+    fc: 3,
+    address: 61841,
+    length: 7,
+    data: {
+      access: 0,
+      rs485LedPeriod : 0,
+      rs485LedOntime: 0, 
+      eventLedPeriod : 0,
+      eventLedOntime: 0, 
+      deviceLedPeriod : 0,
+      deviceLedOntime: 0, 
+    },
+  },
+  REG_SETUP_RS485: {
+    fc: 3,
+    address: 61856,
+    length: 5,
+    data: {
+      deviceAddress : 0,
+      baudrate: 0, 
+      parity : 0,
+      stopBits: 0, 
+    },
+  },
+
+  REG_SETUP_LM_DIO: {
+    fc: 3,
+    address: 61881,
+    length: 2,
+    data: {
+      di_setup1: 0,
+      di_setup2: 0,
+      di_setup3: 0,
+      di_setup4: 0,
+      di_setup5: 0,
+      di_setup6: 0,
+      di_setup7: 0,
+      di_setup8: 0,
+      di_setup9: 0,
+      di_setup10: 0,
+      di_setup11: 0,
+      di_setup12: 0,
+      di_setup13: 0,
+      di_setup14: 0,
+      di_setup15: 0,
+      di_setup16: 0,
+      di_setup17: 0,
+      di_setup18: 0,
+      do_setup1: 0,
+      do_setup2: 0,
+      do_setup3: 0,
+      do_setup4: 0,
+      do_setup5: 0,
+      do_setup6: 0,
+      do_setup7: 0,
+      do_setup8: 0,
+      do_setup9: 0,
+    },
+  },
   REG_IO_INFORMATION: {
     fc: 3,
-    address: 63081,
+    address: 61553,
     length: 12,
     data: {
       operationState: "", //1w
