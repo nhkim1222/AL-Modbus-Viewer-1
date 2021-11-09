@@ -581,6 +581,7 @@ const set_pc_do_cmd = async (evt, { id, ch, value }) => {
     }
   }
 };
+
 const get_event_fatch = async (evt) => {
   if (modbusClient.isOpen) {
     try {
@@ -602,6 +603,7 @@ const get_event_fatch = async (evt) => {
     }
   }
 };
+
 const get_event = async (evt) => {
   if (modbusClient.isOpen) {
     try {
@@ -609,8 +611,11 @@ const get_event = async (evt) => {
 
       let remainingCount = 0;
       const replyChannel = "set-event";
-      do{
-        const {data : event_fetch} = await readRegister(Map.REG_EVENT_FATCH.address, 3);
+      do {
+        const { data: event_fetch } = await readRegister(
+          Map.REG_EVENT_FATCH.address,
+          3
+        );
         remainingCount = event_fetch[1];
         
         console.log(`remaining count = ${remainingCount}`);
@@ -633,8 +638,8 @@ const get_event = async (evt) => {
         }
         console.log(e.info.toString(16));
         arr.unshift(e);
-      } while(remainingCount > 0)
-      
+      } while (remainingCount > 0);
+
       evt.reply(replyChannel, arr);
     } catch (err) {
       handleError(evt);
