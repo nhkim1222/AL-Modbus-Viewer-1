@@ -6,6 +6,7 @@ import IOInformation from "../Components/Module/IOInformation";
 import IOAnalogInput from "../Components/Module/IOAnalogInput";
 import { useInterval } from "../Hooks/useInterval";
 import { usePolling } from "../Hooks/useIpcOn";
+import IOAnalogTest from "../Components/Module/IOAnalogTest";
 const { ipcRenderer } = window.require("electron");
 
 const Container = styled.div`
@@ -52,6 +53,13 @@ function IOModule(id) {
       )}
       {info.moduleType == 8 ? (
         <IOAnalogInput id={id.match.params.id} />
+       
+      ) : (
+        <div></div>
+      )}
+       {info.moduleType == 8 ? (
+        <IOAnalogTest id={id.match.params.id}/>
+       
       ) : (
         <div></div>
       )}

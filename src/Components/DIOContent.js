@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { InputContent } from "./DataContent";
 
 const DIValue = styled.div`
   display: flex;
@@ -75,6 +76,15 @@ export const AIContent = ({ ch, value }) => {
     </Container>
   );
 };
+
+export const AITestInput =  ({ch}) => {
+  return (
+    <Container>
+      <Title>channel {ch}</Title>
+      <InputContent></InputContent>
+    </Container>
+  )
+}
 
 export const FAULTContent = ({ ch, value, }) => {
   return (

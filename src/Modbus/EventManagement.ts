@@ -42,7 +42,6 @@ interface eventData {
   detail: Array<number>;
 }
 async function dataFetch(client: ModbusRTU): Promise<AsyncData<eventData>> {
-  console.log("data fetch");
   try {
     if (client.isOpen) {
       const result = await client.readHoldingRegisters(63700, 16);
@@ -59,7 +58,6 @@ async function dataFetch(client: ModbusRTU): Promise<AsyncData<eventData>> {
           result.buffer.readUInt32BE(14),
         ],
       };
-      console.log(event);
 
       return Promise.resolve({
         done: true,

@@ -1,4 +1,4 @@
-import React from "react";
+import React , { useState }  from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -51,10 +51,19 @@ export const DataContent = ({ prop, value, invalid, priority }) => {
 };
 
 export const InputContent = (props) => {
+  const [value, setValue]  = useState(0);
+  
+  const clicked = () => {
+    props.changedValue(props.ch, value);
+  }
+  const valueChanged = (obj) => {
+    setValue(obj.target.value);
+  }
   return (
     <Container>
-      <Title>{props.name}</Title>
-      <Input type="text" name={props.name}></Input>
+      <Title>channel {props.ch}</Title>
+      <Input type="text" name={props.ch} onChange={valueChanged}></Input>
+      <button onClick={clicked}>TEST SET</button>
     </Container>
   );
 };

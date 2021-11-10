@@ -1,7 +1,18 @@
 import React, { useState } from "react";
+import styled from 'styled-components';
+
 import { ContentBox, TitleLabel } from "../Style";
 import { usePolling } from "../../Hooks/useIpcOn";
 import { AIContent } from "../DIOContent";
+
+export const MainContainer = styled.div`
+  display: inline-block;
+  justify-content: left;
+  align-items: baseline;
+  margin: 10px;
+  border-radius: 5px;
+  padding: 0px;
+`;
 
 function IOAnalogInput(params) {
   const { id } = params;

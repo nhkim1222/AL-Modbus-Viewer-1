@@ -582,6 +582,34 @@ const set_pc_do_cmd = async (evt, { id, ch, value }) => {
   }
 };
 
+const set_iom_ai_test_cmd = async (evt, { id, type, ch, value}) => {
+  
+  const buf = [type, 0, ch, 0];
+  const arr = buf.concat(value);
+  console.log(arr);
+  if (modbusClient.isOpen) {
+    try {
+      await mutex.acquire();
+      
+      changeMap(10000);
+
+      const addr = 2618 + (id - 1) * 16 + (ch - 1);
+      console.log(
+        `id : ${id} addr: ${addr}, data: ${value}`
+      );
+      
+
+      await modbusClient.writeRegisters(addr, arr);
+
+      changeMap(0);
+      mutex.release();
+    } catch (err) {
+      handleError(evt);
+      mutex.release();
+    }
+  }
+};
+
 const get_event_fatch = async (evt) => {
   if (modbusClient.isOpen) {
     try {
@@ -693,4 +721,5 @@ export function initRegisterAccess() {
   ipcMain.on("set-iom-di-test-cmd", set_iom_di_test_cmd);
   ipcMain.on("set-io-do-cmd", set_io_do_cmd);
   ipcMain.on("set-pc-do-cmd", set_pc_do_cmd);
+  ipcMain.on("set-iom-ai-test-cmd",set_iom_ai_test_cmd);
 }
