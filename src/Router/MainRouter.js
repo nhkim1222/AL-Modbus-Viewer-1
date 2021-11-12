@@ -12,6 +12,7 @@ import LMCommonSetup from "../Components/Main/LMCommonSetup";
 import LMSetupContainer from "../Components/Main/Container/LMSetupContainer";
 import LMEvents from "../Components/Main/LMEvents";
 import LMLogicSetup from "../Components/Main/LMLogicSetup";
+import IODIOSetup from "../Components/Module/IODIOSetup";
 const { ipcRenderer } = window.require("electron");
 const Container = styled.div`
   display: flex;
@@ -59,6 +60,7 @@ function MainRouter({ match }) {
       )}
       {isConnected && <Route path="/LM/event" component={LMEvents}></Route>}
       {isConnected && <Route path="/LM/LOGIC Setup" component={LMLogicSetup}></Route>}
+      {isConnected && <Route path="/LM/IO Setup" component={IODIOSetup}></Route>}
     </Container>
   );
 }

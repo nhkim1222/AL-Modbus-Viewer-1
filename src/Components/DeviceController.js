@@ -91,7 +91,7 @@ const StateToDisplay = (state) => {
 
 function DeviceController() {
   const [modelIsOpen, setIsOpen] = useState(false);
-  const [ipAddr, setIpAddr] = useState("10.10.23.48");
+  const [ipAddr, setIpAddr] = useState("10.10.20.208");
   const [state, setState] = useState(STATE_DISCONNECTED);
   const [serialList, setSerialList] = useState([]);
   const { register, handleSubmit, watch, errors } = useForm();

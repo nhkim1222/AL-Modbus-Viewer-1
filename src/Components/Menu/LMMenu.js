@@ -46,6 +46,9 @@ const LMMenu = withRouter(({ location: { pathname } }) => {
       <MenuItem current={pathname === "/LM/LOGIC Setup"}>
         <ItemLink to="/LM/LOGIC Setup">LOGIC Setup</ItemLink>
       </MenuItem>
+      <MenuItem current={pathname === "/LM/IO Setup"}>
+        <ItemLink to="/LM/IO Setup">IO Setup</ItemLink>
+      </MenuItem>
     </Menu>
   );
 });
