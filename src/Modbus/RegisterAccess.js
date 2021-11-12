@@ -269,7 +269,50 @@ const set_lm_setup = async (evt, setup) => {
     }
   }
 };
+const get_lm_logic_setup = async (evt, payload) => {
+  if (modbusClient.isOpen) {
+    try {
+      const { address, length, data: setup } = Map.REG_SETUP_LM_DIO;
+      const { data } = await readRegister(address, length);
+      setup.access = data[0];    
+      setup.di_setup = data.slice(1, 28);
+      evt.reply("set-lm-logic-setup", setup);
+    } catch (error) {
+      handleError(evt);
+    }
+  }
+};
 
+const set_lm_logic_setup = async (evt, setup) => {
+  if (modbusClient.isOpen) {
+    try {
+      const { address, length } = Map.REG_SETUP_LM_DIO;
+      console.log("setup lock");
+      setupUnlock();
+      const {lm_dio} = setup;
+      console.log(lm_dio);
+      let buffer = [];
+      lm_dio.map((setup, index) => {
+        console.log(setup)
+        var buf = 0;
+        if(index < 18)
+          buf = parseInt(setup.polarity) <<8 | parseInt(setup.mapping);  
+        else
+          buf = parseInt(setup.mapping)  << 8;
+        console.log(buf);
+        buffer.push(buf);
+      })
+      
+      console.log(buffer);
+      await mutex.acquire();
+      await modbusClient.writeRegisters(address, buffer);
+      await modbusClient.writeRegister(address - 1, 1); // access write
+      mutex.release();
+    } catch (err) {
+      handleError(evt);
+    }
+  }
+};
 const get_io_information = async (evt, { io_id }) => {
   if (modbusClient.isOpen) {
     try {
@@ -717,9 +760,12 @@ export function initRegisterAccess() {
   ipcMain.on("get-event", get_event);
   ipcMain.on("set-lm-do-cmd", set_lm_do_cmd);
   ipcMain.on("set-lm-setup", set_lm_setup);
+  ipcMain.on("get-lm-setup", get_lm_setup);
   ipcMain.on("set-lm-di-test-cmd", set_lm_di_test_cmd);
   ipcMain.on("set-iom-di-test-cmd", set_iom_di_test_cmd);
   ipcMain.on("set-io-do-cmd", set_io_do_cmd);
   ipcMain.on("set-pc-do-cmd", set_pc_do_cmd);
   ipcMain.on("set-iom-ai-test-cmd",set_iom_ai_test_cmd);
+  ipcMain.on("set-lm-logic-setup", set_lm_logic_setup);
+  ipcMain.on("get-lm-logic-setup", get_lm_logic_setup);
 }

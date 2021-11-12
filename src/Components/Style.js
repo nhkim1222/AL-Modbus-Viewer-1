@@ -91,7 +91,7 @@ export const FormApply = styled.input.attrs("submit")`
   padding-right: 1rem;
   margin: 5px;
   justify-content: center;
-  width: 100%;
+  width: auto;
   height: 26px;
   background: #228be6;
   &:hover {
@@ -117,7 +117,7 @@ export const DataContainer = styled.div`
   flex-direction: row;
   overflow-y: scroll;
   width: 100%;
-  height: auto;
+  height: 100%;
   flex-wrap: wrap;
   padding: 10px;
 `;

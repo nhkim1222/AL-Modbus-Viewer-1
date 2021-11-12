@@ -11,12 +11,14 @@ import { useInterval } from "../Hooks/useInterval";
 import LMCommonSetup from "../Components/Main/LMCommonSetup";
 import LMSetupContainer from "../Components/Main/Container/LMSetupContainer";
 import LMEvents from "../Components/Main/LMEvents";
+import LMLogicSetup from "../Components/Main/LMLogicSetup";
 const { ipcRenderer } = window.require("electron");
 const Container = styled.div`
   display: flex;
   height: 100%;
   flex-direction: row;
   background-color: white;
+  overflow-y: scroll;
   color: black;
 `;
 
@@ -56,6 +58,7 @@ function MainRouter({ match }) {
         <Route path="/LM/setup" component={LMSetupContainer}></Route>
       )}
       {isConnected && <Route path="/LM/event" component={LMEvents}></Route>}
+      {isConnected && <Route path="/LM/LOGIC Setup" component={LMLogicSetup}></Route>}
     </Container>
   );
 }
