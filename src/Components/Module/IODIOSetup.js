@@ -1,9 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import styled from 'styled-components';
+import styled from "styled-components";
+import AISetup from './IOAI2Setup';
+
 const Container = styled.div`
   width: 600px;
-`
+`;
 const FormSelect = styled.select`
   display: block;
   font-size: 12px;
@@ -87,12 +89,11 @@ const FormApply = styled.input.attrs("submit")`
   font-size: 12px;
 `;
 
-
 const DataContainer = styled.div`
   display: flex;
   flex-direction: row;
   overflow-y: scroll;
-  width: 100%;
+  width: 100vw;
   height: 100%;
   flex-wrap: wrap;
   padding: 10px;
@@ -126,234 +127,177 @@ const FormText = styled.input.attrs((props) => ({ type: "text" }))`
     border-bottom-color: darksalmon;
   }
 `;
+
+const FieldContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
 function DIOSetup(props) {
-    const {id} = props;
-    const {
-        control,
-        register,
-        handleSubmit,
-        watch,
-        setValue,
-        formState: { errors },
-    } = useForm();  
-    useEffect(() => {
-        // ipcRenderer.on("set-lm-logic-setup", (evt, args) => {
-        //   for(var i = 0; i < 27; i ++)
-        //   {
-        //     if(i < 18)
-        //     {
-        //       setValue(`lm_dio[${i}].polarity`,(args.di_setup[i] >> 8));
-        //       setValue(`lm_dio[${i}].mapping`, (args.di_setup[i] & 0xff) );
-        //     }
-        //     else
-        //     {          
-        //       setValue(`lm_dio[${i}].mapping`, (args.di_setup[i] >> 8) );
-        //     }
-        //   }
-        //   console.log(args);
-        // });
-    
-        // ipcRenderer.send("get-lm-logic-setup");
-        
-        const di_setup = [];
-        const do_setup = [];
-        for (var i=0; i < 11; i++) {
-          di_setup.push({polarity: 0, mapping : "0", id: i+1, ch: i+1})
-          if (i < 6)
-            do_setup.push({mapping : "0", id: i+12, ch: i+1})
+  const { id } = props;
+  const type = 5;
+  const {
+    control,
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm();
+  useEffect(() => {
+    ipcRenderer.on("set-ioh-logic-setup", (evt, args) => {
+      if (args === undefined) {
+        console.log("return is undefined");
+        return;
+      }
+      for (var i = 0; i < 17; i++) {
+        if (i < 11) {
+          setValue(`ioh_dio[${i}].polarity`, args.dio_setup[i] >> 8);
+          setValue(`ioh_dio[${i}].mapping`, args.dio_setup[i] & 0xff);
+        } else {
+          console.log(`id = ${i}, ${args.dio_setup[i]}`);
+          setValue(`ioh_dio[${i}].mapping`, args.dio_setup[i] >> 8);
         }
-        let dio_setup = di_setup.concat(do_setup);
-        //console.log(dio_setup);
-        append(dio_setup);
-    
-        
-        return () => {
-          ipcRenderer.removeAllListeners("set-lm-logic-setup");
-        };
-      }, []);
-    const { fields, append, insert } = useFieldArray({
-        control: control,
-        name: "ioh_dio"
+      }
+      console.log(args);
     });
 
-    const onSubmit = (data) => {
+    ipcRenderer.send("get-ioh-logic-setup", id);
 
+    const di_setup = [];
+    const do_setup = [];
+    for (var i = 0; i < 11; i++) {
+      di_setup.push({ polarity: 0, mapping: 0, id: i , ch: i + 1 });
+      if (i < 6) do_setup.push({ mapping: 0, id: i + 11, ch: i + 1 });
+    }
+    let dio_setup = di_setup.concat(do_setup);
+    console.log(dio_setup);
+    append(dio_setup);
+
+    return () => {
+      ipcRenderer.removeAllListeners("set-ioh-logic-setup");
+    };
+  }, []);
+  const { fields, append, insert } = useFieldArray({
+    control: control,
+    name: "ioh_dio",
+  });
+
+  const onSubmit = (data) => {
+    const request_data = {
+      id: id,
+      type: type,
+      data: data.ioh_dio,
     };
 
-    return (
-        <DataContainer>
-          <form onSubmit={handleSubmit(onSubmit)}>        
-            <SubmitContainer>
-              <TitleLabel style={{ color: "black" }}>LM Logic setup</TitleLabel>
-             
-              <FormApply type="submit" value="apply"></FormApply>
-            </SubmitContainer>
-            {
-              fields.map( (field, index) => {
-                if (index > 10) {
-                  return (<div key={field.id}></div>);
-                }
-                return(
-                  <DataField key={field.id}>
-                  <FormLabel>DI-{field.ch} Polarity</FormLabel>
-                  <FormSelect name={`ioh_dio[${index}].polarity`} {...register(`ioh_dio[${index}].polarity`)}>
-                    <option value={0}>Normal</option>
-                    <option value={1}>Reverse</option>
-                  </FormSelect>
+    console.log(request_data.data);
+    ipcRenderer.send("set-ioh-logic-setup", request_data);
+    ipcRenderer.send("get-ioh-logic-setup", id);
+  };
+
+  return (
+    <DataContainer>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <SubmitContainer>
+          <TitleLabel style={{ color: "black" }}>IOH Logic setup</TitleLabel>
+
+          <FormApply type="submit" value="apply"></FormApply>
+        </SubmitContainer>
+          {fields.map((field) => {
+            console.log(fields.length);
+            if (field.id > 10) {
+              return (
+                <DataField key={field.id}>
+                  <FormLabel>DO-{field.ch} mapping</FormLabel>
+                  <FormText
+                    name={`ioh_dio[${field.id}].mapping`}
+                    {...register(`ioh_dio[${field.id}].mapping`)}
+                    defaultValue={0}
+                  ></FormText>
                 </DataField>
-                )
-              })
-            }
-            {
-              fields.map( (field, index) => 
-              {
-                if (index > 10) {
-                  return (<div key={field.id}></div>);
-                }
-                  return (
-                    <DataField key={field.id}>
-                      <FormLabel>DI-{field.ch} mapping</FormLabel>
-                      <FormText name={`ioh_dio[${index}].mapping`}  {...register(`ioh_dio[${index}].mapping`)} defaultValue={field.mapping}></FormText>
-                    </DataField>
-                  )
-              })
-            }  
-            {
-              fields.map( (field, index) =>  {
-                if (index < 11) {
-                  return (<div key={field.id}></div>);
-                }
-                return (
-                  <DataField key={field.id}>
-                    <FormLabel>DO-{field.ch} mapping</FormLabel>
-                    <FormText name={`ioh_dio[${index}].mapping`}  {...register(`ioh_dio[${index}].mapping`)} defaultValue={field.mapping}></FormText>
+              );
+            } else {
+              return (
+                <FieldContainer key={field.id}>
+                  <DataField >
+                    <FormLabel>DI-{field.ch} mapping</FormLabel>
+                    <FormText
+                      name={`ioh_dio[${field.id}].mapping`}
+                      {...register(`ioh_dio[${field.id}].mapping`)}
+                      defaultValue={0}
+                    ></FormText>
                   </DataField>
-                )
-              })
-            }      
-          </form>
-        </DataContainer>
-      );
-}
-
-function AISetup(props) {
-
-    return (
-       <DataContainer2>
-         <form>
-           <SubmitContainer>
-              <TitleLabel style={{ color: "black" }}>AI Logic Setup</TitleLabel>
-              <FormSelect style={{ marginLeft: "10px"}}>
-                <option value={1}>channel1</option>
-                <option value={2}>channel2</option>
-                <option value={3}>channel3</option>
-                <option value={4}>channel4</option>
-                <option value={5}>channel5</option>
-                <option value={6}>channel6</option>
-                <option value={7}>channel7</option>
-                <option value={8}>channel8</option>
-                <option value={9}>channel9</option>
-                <option value={10}>channel10</option>
-                <option value={11}>channel11</option>
-                <option value={12}>channel12</option>
-              </FormSelect>
-              <FormApply type="submit" value="apply"></FormApply>
-           </SubmitContainer>
-           <DataField>
-             <FormLabel>AI1 InputType</FormLabel>
-             <FormSelect>
-               <option value={0}>4-20</option>
-               <option value={1}>0-20</option>
-             </FormSelect>
-           </DataField>
-           <DataField>
-             <FormLabel>AI1 Unit type</FormLabel>
-             <FormSelect>
-               <option value={0}>No trans</option>
-               <option value={1}>%</option>
-               <option value={2}>V</option>
-               <option value={3}>A</option>
-               <option value={4}>C</option>
-               <option value={5}>F</option>
-               <option value={6}>l</option>
-               <option value={7}>m3</option>
-               <option value={8}>bar</option>
-             </FormSelect>
-           </DataField>
-           <DataField>
-             <FormLabel>AI1 Mapping</FormLabel>
-             <FormText></FormText>
-           </DataField>
-           <DataField>
-             <FormLabel>AI1 Min Value</FormLabel>
-             <FormText></FormText>
-           </DataField>
-           <DataField>
-             <FormLabel>AI1 Max Value</FormLabel>
-             <FormText></FormText>
-           </DataField>
-         </form>
-       </DataContainer2> 
-    )
+                  <DataField>
+                    <FormLabel>DI-{field.ch} Polarity</FormLabel>
+                    <FormSelect
+                      name={`ioh_dio[${field.id}].polarity`}
+                      {...register(`ioh_dio[${field.id}].polarity`)}
+                    >
+                      <option value={0}>Normal</option>
+                      <option value={1}>Reverse</option>
+                    </FormSelect>
+                  </DataField>
+                </FieldContainer>
+              );
+            }
+          })}
+      </form>
+    </DataContainer>
+  );
 }
 
 function IODIOSetup(props) {
-    
-    
-    const [id, SetId] =  useState(1);
-    const [type, setType] = useState(1);
+  const [id, SetId] = useState(1);
+  const [type, setType] = useState(1);
 
-    const SetupContents = ({type}) => {
-        if (type  == 1) {// di {
-            return (
-                <DIOSetup id={id}></DIOSetup>
-            )
-        } else if (type == 2){
-            return (
-                <AISetup></AISetup>
-            )
-        }
+  const SetupContents = ({ type }) => {
+    if (type == 1) {
+      // di {
+      return <DIOSetup id={id}></DIOSetup>;
+    } else if (type == 2) {
+      return <AISetup></AISetup>;
     }
-    const typeChange = (e) => {
-        console.log(e.target.value);
-        setType(e.target.value);
-    }
-    const idChange = (e) => {
-        SetId(e.target.value);
-    }
+  };
+  const typeChange = (e) => {
+    console.log(e.target.value);
+    setType(e.target.value);
+  };
+  const idChange = (e) => {
+    SetId(e.target.value);
+  };
 
-    return (
-        <Container>
-            <DataField>
-                <FormLabel>A2750IOH ID</FormLabel>
-                <FormSelect>
-                    <option value={1}>ID 01</option>
-                    <option value={2}>ID 02</option>
-                    <option value={3}>ID 03</option>
-                    <option value={4}>ID 04</option>
-                    <option value={5}>ID 05</option>
-                    <option value={6}>ID 06</option>
-                    <option value={7}>ID 07</option>
-                    <option value={8}>ID 08</option>
-                    <option value={9}>ID 09</option>
-                    <option value={10}>ID 10</option>
-                    <option value={11}>ID 11</option>
-                    <option value={12}>ID 12</option>
-                    <option value={13}>ID 13</option>
-                    <option value={14}>ID 14</option>
-                    <option value={15}>ID 15</option>
-                </FormSelect>
-            </DataField>
-            <DataField>
-                <FormLabel>TYPE</FormLabel>
-                <FormSelect onChange= {typeChange}>
-                    <option value={1}>DIO</option>
-                    <option value={2}>AI2</option>
-                </FormSelect>
-            </DataField>
-            <SetupContents type={type}></SetupContents>
-        </Container>
-    )
+  return (
+    <Container>
+      <DataField>
+        <FormLabel>A2750IOH ID</FormLabel>
+        <FormSelect onChange={idChange}>
+          <option value={1}>ID 01</option>
+          <option value={2}>ID 02</option>
+          <option value={3}>ID 03</option>
+          <option value={4}>ID 04</option>
+          <option value={5}>ID 05</option>
+          <option value={6}>ID 06</option>
+          <option value={7}>ID 07</option>
+          <option value={8}>ID 08</option>
+          <option value={9}>ID 09</option>
+          <option value={10}>ID 10</option>
+          <option value={11}>ID 11</option>
+          <option value={12}>ID 12</option>
+          <option value={13}>ID 13</option>
+          <option value={14}>ID 14</option>
+          <option value={15}>ID 15</option>
+        </FormSelect>
+      </DataField>
+      <DataField>
+        <FormLabel>TYPE</FormLabel>
+        <FormSelect onChange={typeChange}>
+          <option value={1}>DIO</option>
+          <option value={2}>AI2</option>
+        </FormSelect>
+      </DataField>
+      <SetupContents type={type}></SetupContents>
+    </Container>
+  );
 }
 
 export default IODIOSetup;
