@@ -10,7 +10,7 @@ function LMAlarm() {
   const [alarm, setAlarm] = useState({
     state: false,
   });
-
+  console.log("test");
   usePolling("set-mismatch-alarm", setAlarm);
   
   return <Container>Missmatch Alarm: {alarm.state ? "ON": "OFF"}</Container>;
