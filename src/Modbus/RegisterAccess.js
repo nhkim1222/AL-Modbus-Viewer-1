@@ -341,12 +341,12 @@ const getFloatData = (buffer, startIndex, endIndex) => {
 const get_ioh_ai_logic_setup = async (evt, payload) => {
   if (modbusClient.isOpen) {
     try {
-      console.log('ai value getter');
+      console.log('ioh_ai> getter');
       await modbusClient.writeRegister(61931 - 1, payload);
       console.log(payload);
       const { address, length, data: setup } = Map.REG_SETUP_IOH_AIO;
       const { data, buffer } = await readRegister(61932, length);
-      console.log("data:", data);
+      console.log("ioh_ai> data:", data);
       setup.access = data[0];    
       setup.type = (data[1] >> 8);
       setup.exist = (data[1] & 0xFF);
@@ -399,21 +399,29 @@ const set_ioh_ai_logic_setup = async (evt, setup) => {
     try {
       setupUnlock();
       const {id, type, data} = setup;
-      console.log(data);
+      console.log("ioh_ai> user set data:", data);
       let buffer = [];
       buffer.push((type << 8 | 1));
-      data.map((ai_data, index) => {
-        const {ai_type, unit, mapping, min_value, max_value} = ai_data;
-        console.log(`user set request data = ${ai_data}`);
-        console.log(ai_type);
-        buffer = buffer.concat(ai_type);
-        buffer = buffer.concat(unit);
-        buffer = buffer.concat(mapping);
-        buffer = buffer.concat(min_value);
-        buffer = buffer.concat(max_value);
-      });
       
-      console.log(buffer);
+      const ai_types = [];
+      const units = [];
+      const mappings = [];
+      const min_values =[];
+      const max_values = [];
+      data.map((ai_data) => {
+        const {ai_type, unit, mapping, min_value, max_value} = ai_data;
+        console.log("ioh_ai> user set request data", ai_data);
+        ai_types.push(parseInt(ai_type));
+        units.push(parseInt(unit));
+        mappings.push(parseInt(mapping));
+        min_values.push(parseFloat(min_value));
+        max_values.push(parseFloat(max_value));
+      });
+      buffer.concat(ai_types);
+      buffer.concat(units);
+      buffer.concat(mappings);
+      buffer.concat(min_values);
+      buffer.concat(max_values);
       await mutex.acquire();
       await modbusClient.writeRegister(61931 - 1, id);
       await modbusClient.writeRegisters(61933 - 1, buffer);
@@ -424,6 +432,7 @@ const set_ioh_ai_logic_setup = async (evt, setup) => {
     }
   }
 }
+
 const get_io_information = async (evt, { io_id }) => {
   if (modbusClient.isOpen) {
     try {
@@ -533,6 +542,7 @@ const set_io_do_cmd = async (evt, { id, ch, value }) => {
     }
   }
 };
+
 const set_iom_di_test_cmd = async (evt, { id, type, ch, value }) => {
   const buf = [type,0, ch, 0,value];
   if (modbusClient.isOpen) {
@@ -557,6 +567,7 @@ const set_iom_di_test_cmd = async (evt, { id, type, ch, value }) => {
     }
   }
 };
+
 const get_io_ai_status = async (evt, { io_id }) => {
   if (modbusClient.isOpen) {
     try {

@@ -162,7 +162,7 @@ function AISetup(props) {
         setValue(`ioh_ai2[${i + 1}].max_value`, 0);
       }
     };
-    ipcRenderer.on("set-ioh-ai-setup", callback);
+    ipcRenderer.on("set-ioh-ai-logic-setup", callback);
     ipcRenderer.send("get-ioh-ai-logic-setup", id);
     const ai_setup = [];
     for (var i = 0; i < channelCounts; i++) {
@@ -189,6 +189,7 @@ function AISetup(props) {
       data: data.ioh_ai2,
     };
     console.log(`onSubmit> data = ${data.ioh_ai2}`);
+    console.log("submit data:", request_ai2_data);
     ipcRenderer.send("set-ioh-ai-logic-setup", request_ai2_data);
     ipcRenderer.send("get-ioh-ai-logic-setup", id);
   };
@@ -205,14 +206,14 @@ function AISetup(props) {
             <FieldContainer key={field.id}>
               <DataField>
                 <FormLabel>{`AI${field.ch} InputType`}</FormLabel>
-                <FormSelect {...register(`ioh_ai2[${field.id}.ai_type]`)}>
+                <FormSelect {...register(`ioh_ai2[${field.id}].ai_type]`)}>
                   <option value={0}>4-20</option>
                   <option value={1}>0-20</option>
                 </FormSelect>
               </DataField>
               <DataField>
                 <FormLabel>{`AI${field.ch} Unit type`}</FormLabel>
-                <FormSelect {...register(`ioh_ai2[${field.id}.unit]`)}>
+                <FormSelect {...register(`ioh_ai2[${field.id}].unit]`)}>
                   <option value={0}>No trans</option>
                   <option value={1}>%</option>
                   <option value={2}>V</option>
