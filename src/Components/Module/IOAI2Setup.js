@@ -134,6 +134,7 @@ const FieldContainer = styled.div`
 `;
 
 function AISetup(props) {
+  const channelCounts = 12;
   const { id } = props;
   const type = 8;
   const {
@@ -144,23 +145,30 @@ function AISetup(props) {
     setValue,
     formState: { errors },
   } = useForm();
-
+ 
+  const { fields, append, insert } = useFieldArray({
+    control: control,
+    name: "ioh_ai2",
+  });
+  
   useEffect(() => {
+
     const callback = (evt, args) => {
-        for (var i = 0; i < 11; i++) {
-            setValue(`ioh_ai2[${i+1}].inputType` , 0);
-            setValue(`ioh_ai2[${i+1}].unitType` , 0);
-            setValue(`ioh_ai2[${i+1}].mapping` , 0);
-            setValue(`ioh_ai2[${i+1}].minValue` , 0);
-            setValue(`ioh_ai2[${i+1}].maxValue` , 0);
-        }
+      for (var i = 0; i < channelCounts; i++) {
+        setValue(`ioh_ai2[${i + 1}].ai_type`, 0);
+        setValue(`ioh_ai2[${i + 1}].unit`, 0);
+        setValue(`ioh_ai2[${i + 1}].mapping`, 0);
+        setValue(`ioh_ai2[${i + 1}].min_value`, 0);
+        setValue(`ioh_ai2[${i + 1}].max_value`, 0);
+      }
     };
     ipcRenderer.on("set-ioh-ai-setup", callback);
-
+    ipcRenderer.send("get-ioh-ai-logic-setup", id);
     const ai_setup = [];
-    for (var i = 0; i < 11; i++) {
+    for (var i = 0; i < channelCounts; i++) {
       ai_setup.push({
-        ch: i,
+        ch: i + 1,
+        id: i,
         ai_type: 0,
         unit: 0,
         mapping: 0,
@@ -172,33 +180,39 @@ function AISetup(props) {
     append(ai_setup);
   }, []);
 
-  const { fields, append, insert } = useFieldArray({
-    control: control,
-    name: "ioh_ai2",
-  });
 
-  const onSubmit = (data) => {};
+
+  const onSubmit = (data) => {
+    const request_ai2_data = {
+      id: id,
+      type: type,
+      data: data.ioh_ai2,
+    };
+    console.log(`onSubmit> data = ${data.ioh_ai2}`);
+    ipcRenderer.send("set-ioh-ai-logic-setup", request_ai2_data);
+    ipcRenderer.send("get-ioh-ai-logic-setup", id);
+  };
 
   return (
     <DataContainer2>
-      <form>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <SubmitContainer>
           <TitleLabel style={{ color: "black" }}>AI Logic Setup</TitleLabel>
           <FormApply type="submit" value="apply"></FormApply>
         </SubmitContainer>
         {fields.map((field) => {
           return (
-            <FieldContainer key={field.ch}>
+            <FieldContainer key={field.id}>
               <DataField>
-                <FormLabel>AI1 InputType</FormLabel>
-                <FormSelect>
+                <FormLabel>{`AI${field.ch} InputType`}</FormLabel>
+                <FormSelect {...register(`ioh_ai2[${field.id}.ai_type]`)}>
                   <option value={0}>4-20</option>
                   <option value={1}>0-20</option>
                 </FormSelect>
               </DataField>
               <DataField>
-                <FormLabel>AI1 Unit type</FormLabel>
-                <FormSelect>
+                <FormLabel>{`AI${field.ch} Unit type`}</FormLabel>
+                <FormSelect {...register(`ioh_ai2[${field.id}.unit]`)}>
                   <option value={0}>No trans</option>
                   <option value={1}>%</option>
                   <option value={2}>V</option>
@@ -211,16 +225,28 @@ function AISetup(props) {
                 </FormSelect>
               </DataField>
               <DataField>
-                <FormLabel>AI1 Mapping</FormLabel>
-                <FormText></FormText>
+                <FormLabel>{`AI${field.ch} Mapping`}</FormLabel>
+                <FormText
+                  name={`ioh_ai2[${field.id}].mapping`}
+                  {...register(`ioh_ai2[${field.id}].mapping`)}
+                  defaultValue={0}
+                ></FormText>
               </DataField>
               <DataField>
-                <FormLabel>AI1 Min Value</FormLabel>
-                <FormText></FormText>
+                <FormLabel>{`AI${field.id} Min Value`}</FormLabel>
+                <FormText
+                  name={`ioh_ai2[${field.id}].minValue`}
+                  {...register(`ioh_ai2[${field.id}].min_value`)}
+                  defaultValue={0}
+                ></FormText>
               </DataField>
               <DataField>
-                <FormLabel>AI1 Max Value</FormLabel>
-                <FormText></FormText>
+                <FormLabel>{`AI${field.id} Max Value`}</FormLabel>
+                <FormText
+                  name={`ioh_ai2[${field.id}].maxValue`}
+                  {...register(`ioh_ai2[${field.id}].max_value`)}
+                  defaultValue={0}
+                ></FormText>
               </DataField>
             </FieldContainer>
           );
