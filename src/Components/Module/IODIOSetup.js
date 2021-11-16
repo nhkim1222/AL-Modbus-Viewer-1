@@ -255,7 +255,7 @@ function IODIOSetup(props) {
       // di {
       return <DIOSetup id={id}></DIOSetup>;
     } else if (type == 2) {
-      return <AISetup></AISetup>;
+      return <AISetup id={id}></AISetup>;
     }
   };
   const typeChange = (e) => {

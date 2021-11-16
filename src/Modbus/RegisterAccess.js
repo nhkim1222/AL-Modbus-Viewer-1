@@ -330,6 +330,39 @@ const get_ioh_logic_setup = async (evt, payload) => {
     }
   }
 };
+const getFloatData = (buffer, startIndex, endIndex) => {
+  const data = [];
+  for (var i = startIndex; i < endIndex; i+=2) {
+    data.push(buffer.readFloatBE(i));
+  }
+  return data;
+}
+
+const get_ioh_ai_logic_setup = async (evt, payload) => {
+  if (modbusClient.isOpen) {
+    try {
+      console.log('ai value getter');
+      await modbusClient.writeRegister(61931 - 1, payload);
+      console.log(payload);
+      const { address, length, data: setup } = Map.REG_SETUP_IOH_AIO;
+      const { data, buffer } = await readRegister(61932, length);
+      console.log("data:", data);
+      setup.access = data[0];    
+      setup.type = (data[1] >> 8);
+      setup.exist = (data[1] & 0xFF);
+      setup.ai_type = data.slice(2, 14);
+      setup.unit = data.slice(14, 26);
+      setup.mapping = data.slice(26, 38);
+      setup.min_value = getFloatData(buffer, 38, 62);
+      setup.max_value = getFloatData(buffer, 62, 86);
+
+      console.log(setup);
+      evt.reply("set-ioh-ai-logic-setup", setup);
+    } catch (error) {
+      handleError(evt);
+    }
+  }
+}
 
 const set_ioh_logic_setup = async (evt, setup) => {
   if (modbusClient.isOpen) {
@@ -361,6 +394,36 @@ const set_ioh_logic_setup = async (evt, setup) => {
   }
 };
 
+const set_ioh_ai_logic_setup = async (evt, setup) => {
+  if (modbusClient.isOpen) {
+    try {
+      setupUnlock();
+      const {id, type, data} = setup;
+      console.log(data);
+      let buffer = [];
+      buffer.push((type << 8 | 1));
+      data.map((ai_data, index) => {
+        const {ai_type, unit, mapping, min_value, max_value} = ai_data;
+        console.log(`user set request data = ${ai_data}`);
+        console.log(ai_type);
+        buffer = buffer.concat(ai_type);
+        buffer = buffer.concat(unit);
+        buffer = buffer.concat(mapping);
+        buffer = buffer.concat(min_value);
+        buffer = buffer.concat(max_value);
+      });
+      
+      console.log(buffer);
+      await mutex.acquire();
+      await modbusClient.writeRegister(61931 - 1, id);
+      await modbusClient.writeRegisters(61933 - 1, buffer);
+      await modbusClient.writeRegister(61932 - 1, 1); // access write
+      mutex.release();
+    } catch (err) {
+      handleError(evt);
+    }
+  }
+}
 const get_io_information = async (evt, { io_id }) => {
   if (modbusClient.isOpen) {
     try {
@@ -818,4 +881,6 @@ export function initRegisterAccess() {
   ipcMain.on("get-lm-logic-setup", get_lm_logic_setup);
   ipcMain.on("get-ioh-logic-setup", get_ioh_logic_setup);
   ipcMain.on("set-ioh-logic-setup", set_ioh_logic_setup);
+  ipcMain.on("get-ioh-ai-logic-setup", get_ioh_ai_logic_setup);
+  ipcMain.on("set-ioh-ai-logic-setup", set_ioh_ai_logic_setup);
 }
