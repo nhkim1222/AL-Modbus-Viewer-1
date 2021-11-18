@@ -152,14 +152,25 @@ function AISetup(props) {
   });
   
   useEffect(() => {
-
+    /**
+     * setup.access = data[0];    
+       setup.type = (data[1] >> 8);
+       setup.exist = (data[1] & 0xFF);
+       setup.ai_type = data.slice(2, 14);
+       setup.unit = data.slice(14, 26);
+       setup.mapping = data.slice(26, 38);
+       setup.min_value = getFloatData(buffer, 38, 62);
+       setup.max_value = getFloatData(buffer, 62, 86);
+     */
     const callback = (evt, args) => {
+      const {access, type, exist, ai_type, unit, mapping, min_value, max_value} = args;
+      
       for (var i = 0; i < channelCounts; i++) {
-        setValue(`ioh_ai2[${i + 1}].ai_type`, 0);
-        setValue(`ioh_ai2[${i + 1}].unit`, 0);
-        setValue(`ioh_ai2[${i + 1}].mapping`, 0);
-        setValue(`ioh_ai2[${i + 1}].min_value`, 0);
-        setValue(`ioh_ai2[${i + 1}].max_value`, 0);
+        setValue(`ioh_ai2[${i}].ai_type`, ai_type[i]);
+        setValue(`ioh_ai2[${i}].unit`, unit[i]);
+        setValue(`ioh_ai2[${i}].mapping`, mapping[i]);
+        setValue(`ioh_ai2[${i}].min_value`, min_value[i]);
+        setValue(`ioh_ai2[${i}].max_value`, max_value[i]);
       }
     };
     ipcRenderer.on("set-ioh-ai-logic-setup", callback);
@@ -178,6 +189,9 @@ function AISetup(props) {
     }
 
     append(ai_setup);
+    return () => {
+      ipcRenderer.removeAllListeners("set-ioh-ai-logic-setup");
+    };
   }, []);
 
 

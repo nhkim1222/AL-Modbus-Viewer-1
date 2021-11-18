@@ -333,7 +333,7 @@ const get_ioh_logic_setup = async (evt, payload) => {
 const getFloatData = (buffer, startIndex, endIndex) => {
   const data = [];
   for (var i = startIndex; i < endIndex; i+=2) {
-    data.push(buffer.readFloatBE(i));
+    data.push(buffer.readFloatLE(i));
   }
   return data;
 }
@@ -347,14 +347,25 @@ const get_ioh_ai_logic_setup = async (evt, payload) => {
       const { address, length, data: setup } = Map.REG_SETUP_IOH_AIO;
       const { data, buffer } = await readRegister(61932, length);
       console.log("ioh_ai> data:", data);
-      setup.access = data[0];    
-      setup.type = (data[1] >> 8);
-      setup.exist = (data[1] & 0xFF);
-      setup.ai_type = data.slice(2, 14);
-      setup.unit = data.slice(14, 26);
-      setup.mapping = data.slice(26, 38);
-      setup.min_value = getFloatData(buffer, 38, 62);
-      setup.max_value = getFloatData(buffer, 62, 86);
+      setup.ai_type = [];
+      setup.unit = [];
+      setup.mapping = [];
+      setup.min_value = [];
+      setup.max_value = [];
+      setup.access  = buffer.readUInt16BE(0);    
+      setup.type    = buffer.readUInt16BE(2);
+      setup.exist   = buffer.readUInt16BE(2) & 0xff; 
+      
+      for (var i = 0; i < 24; i+=2) {
+        setup.ai_type.push(buffer.readUInt16BE(4+i));
+        setup.unit.push(buffer.readUInt16BE(28+i));
+        setup.mapping.push(buffer.readUInt16BE(52+i));
+        
+      }
+      for (var i = 0; i < 48; i+=4) {
+        setup.min_value.push(buffer.readFloatBE(76 + i));
+        setup.max_value.push(buffer.readFloatBE(124 + i));
+      } // ㅋㅋㅋ GGd
 
       console.log(setup);
       evt.reply("set-ioh-ai-logic-setup", setup);
@@ -400,28 +411,33 @@ const set_ioh_ai_logic_setup = async (evt, setup) => {
       setupUnlock();
       const {id, type, data} = setup;
       console.log("ioh_ai> user set data:", data);
-      let buffer = [];
-      buffer.push((type << 8 | 1));
       
-      const ai_types = [];
-      const units = [];
-      const mappings = [];
-      const min_values =[];
-      const max_values = [];
-      data.map((ai_data) => {
-        const {ai_type, unit, mapping, min_value, max_value} = ai_data;
-        console.log("ioh_ai> user set request data", ai_data);
-        ai_types.push(parseInt(ai_type));
-        units.push(parseInt(unit));
-        mappings.push(parseInt(mapping));
-        min_values.push(parseFloat(min_value));
-        max_values.push(parseFloat(max_value));
-      });
-      buffer.concat(ai_types);
-      buffer.concat(units);
-      buffer.concat(mappings);
-      buffer.concat(min_values);
-      buffer.concat(max_values);
+      const typeBuffer = Buffer.alloc(2);
+      typeBuffer.writeUInt16BE((type<<8|1), 0);
+
+      const ai_types = Buffer.alloc(24);
+      const units = Buffer.alloc(24);
+      const mappings = Buffer.alloc(24);
+      const minFloatBuffer = Buffer.alloc(48);
+      const maxFloatBuffer = Buffer.alloc(48);
+      for (var i = 0; i < 24; i+=2) {
+        const {ai_type, unit, mapping} = data[i/2];
+        ai_types.writeUInt16BE(parseInt(ai_type), i);
+        units.writeUInt16BE(parseInt(unit), i);
+        mappings.writeUInt16BE(parseInt(mapping), i);
+      }
+
+      for(var i = 0; i < 48; i+=4) {
+        const {min_value, max_value} = data[i/4];
+        const min = parseFloat(min_value);
+        const max = parseFloat(max_value);
+        console.log("ch/min/max data = ",i/4, min, max);
+        minFloatBuffer.writeFloatBE(min, i);
+        maxFloatBuffer.writeFloatBE(max, i);
+      }
+      const buffer = Buffer.concat([typeBuffer, ai_types, units, mappings, minFloatBuffer, maxFloatBuffer]);
+    
+      console.log(buffer);
       await mutex.acquire();
       await modbusClient.writeRegister(61931 - 1, id);
       await modbusClient.writeRegisters(61933 - 1, buffer);
