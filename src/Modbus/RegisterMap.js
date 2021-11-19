@@ -111,7 +111,7 @@ export const Map = {
   REG_SETUP_LM: {
     fc: 3,
     address: 64010,
-    length: 7,
+    length: 5,
     data: {
       access: 0,
       operationMode: 0,

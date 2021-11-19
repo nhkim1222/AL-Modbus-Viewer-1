@@ -203,10 +203,9 @@ const set_lm_do_cmd = (evt, { ch, value }) => {
 };
 
 const set_lm_di_test_cmd = (evt, { ch, value }) => {
-  const buf = value;
   if (modbusClient.isOpen) {
     try {
-      modbusClient.writeCoil(2598 + ch, buf);
+      modbusClient.writeRegister(63640-1 + (ch-1), value);
     } catch (err) {
       handleError(evt);
     }
@@ -235,8 +234,9 @@ const get_lm_setup = async (evt, payload) => {
       setup.access = data[0];
       setup.operationMode = data[1];
       setup.digitalOperation = data[2];
-      setup.analogDeadband = data[3] | (data[4] << 16);
-      setup.alarmThreshold = data[5] | (data[6] << 16);
+      setup.analogDeadband = data[3];
+      setup.alarmThreshold = data[4];
+      console.log(`get lm setup data =${data}`);
       evt.reply("set-lm-setup", setup);
     } catch (error) {
       handleError(evt);
@@ -315,65 +315,24 @@ const set_lm_logic_setup = async (evt, setup) => {
 };
 
 const get_ioh_logic_setup = async (evt, payload) => {
-  console.log(payload);
+  
   if (modbusClient.isOpen) {
     try {
+      console.log(`get ioh logic setup ID=${payload}`);
       await modbusClient.writeRegister(61909 - 1, payload);
-      const { address, length, data: setup } = Map.REG_SETUP_IOH_DIO;
+      const { address, length } = Map.REG_SETUP_IOH_DIO;
       const { data } = await readRegister(address, length);
-      setup.access = data[0];    
-      setup.dio_setup = data.slice(3, 20);
-      console.log( setup.dio_setup);
-      evt.reply("set-ioh-logic-setup", setup);
+      console.log(`data : ${data}`);
+      evt.reply("set-ioh-logic-setup", {
+        access: data[0],
+        dio_setup: data.slice(3,20),
+      });
+
     } catch (error) {
       handleError(evt);
     }
   }
 };
-const getFloatData = (buffer, startIndex, endIndex) => {
-  const data = [];
-  for (var i = startIndex; i < endIndex; i+=2) {
-    data.push(buffer.readFloatLE(i));
-  }
-  return data;
-}
-
-const get_ioh_ai_logic_setup = async (evt, payload) => {
-  if (modbusClient.isOpen) {
-    try {
-      console.log('ioh_ai> getter');
-      await modbusClient.writeRegister(61931 - 1, payload);
-      console.log(payload);
-      const { address, length, data: setup } = Map.REG_SETUP_IOH_AIO;
-      const { data, buffer } = await readRegister(61932, length);
-      console.log("ioh_ai> data:", data);
-      setup.ai_type = [];
-      setup.unit = [];
-      setup.mapping = [];
-      setup.min_value = [];
-      setup.max_value = [];
-      setup.access  = buffer.readUInt16BE(0);    
-      setup.type    = buffer.readUInt16BE(2);
-      setup.exist   = buffer.readUInt16BE(2) & 0xff; 
-      
-      for (var i = 0; i < 24; i+=2) {
-        setup.ai_type.push(buffer.readUInt16BE(4+i));
-        setup.unit.push(buffer.readUInt16BE(28+i));
-        setup.mapping.push(buffer.readUInt16BE(52+i));
-        
-      }
-      for (var i = 0; i < 48; i+=4) {
-        setup.min_value.push(buffer.readFloatBE(76 + i));
-        setup.max_value.push(buffer.readFloatBE(124 + i));
-      } // ㅋㅋㅋ GGd
-
-      console.log(setup);
-      evt.reply("set-ioh-ai-logic-setup", setup);
-    } catch (error) {
-      handleError(evt);
-    }
-  }
-}
 
 const set_ioh_logic_setup = async (evt, setup) => {
   if (modbusClient.isOpen) {
@@ -383,6 +342,7 @@ const set_ioh_logic_setup = async (evt, setup) => {
       console.log(`setup IOH-dio : ID=${id} TYPE=${type}`);
       let buffer = [];
       buffer.push((type << 8 | 1));
+      
       data.map((setup, index) => {
         var dioSetup = 0;
         if(index < 11)
@@ -404,6 +364,52 @@ const set_ioh_logic_setup = async (evt, setup) => {
     }
   }
 };
+const getFloatData = (buffer, startIndex, endIndex) => {
+  const data = [];
+  for (var i = startIndex; i < endIndex; i+=2) {
+    data.push(buffer.readFloatLE(i));
+  }
+  return data;
+}
+
+const get_ioh_ai_logic_setup = async (evt, payload) => {
+  if (modbusClient.isOpen) {
+    try {
+      console.log(`ioh_ai> getter id=${payload}`);
+      await modbusClient.writeRegister(61931 - 1, payload);
+      const { address, length} = Map.REG_SETUP_IOH_AIO;
+      const { data, buffer } = await readRegister(61932, length);
+      console.log("ioh_ai> data:", data);
+      const setup = {
+        ai_type: [],
+        unit: [],
+        mapping: [],
+        min_value: [],
+        max_value: [],
+        access: buffer.readUInt16BE(0),
+        type: buffer.readUInt16BE(2),
+        exist: buffer.readUInt16BE(2) & 0xff,
+      }
+      
+      for (var i = 0; i < 24; i+=2) {
+        setup.ai_type.push(buffer.readUInt16BE(4+i));
+        setup.unit.push(buffer.readUInt16BE(28+i));
+        setup.mapping.push(buffer.readUInt16BE(52+i));
+        
+      }
+      for (var i = 0; i < 48; i+=4) {
+        setup.min_value.push(buffer.readFloatBE(76 + i));
+        setup.max_value.push(buffer.readFloatBE(124 + i));
+      }
+
+      evt.reply("set-ioh-ai-logic-setup", setup);
+    } catch (error) {
+      handleError(evt);
+    }
+  }
+}
+
+
 
 const set_ioh_ai_logic_setup = async (evt, setup) => {
   if (modbusClient.isOpen) {
@@ -559,14 +565,15 @@ const set_io_do_cmd = async (evt, { id, ch, value }) => {
 };
 
 const set_iom_di_test_cmd = async (evt, { id, type, ch, value }) => {
-  const buf = [type,0, ch, 0,value];
+
+  const id_type = id << 8 | type;
+  const buf = [id_type,0, ch, 0,value];
   if (modbusClient.isOpen) {
     try {
       await mutex.acquire();
       
-      changeMap(10000);
 
-      const addr = 2618 + (id - 1) * 12 + (ch - 1);
+      const addr = 63657;
       console.log(
         `id : ${id} addr: ${addr}, data: ${buf}`
       );
@@ -574,7 +581,6 @@ const set_iom_di_test_cmd = async (evt, { id, type, ch, value }) => {
 
       await modbusClient.writeRegisters(addr, buf);
 
-      changeMap(0);
       mutex.release();
     } catch (err) {
       handleError(evt);
@@ -764,16 +770,16 @@ const set_pc_do_cmd = async (evt, { id, ch, value }) => {
 
 const set_iom_ai_test_cmd = async (evt, { id, type, ch, value}) => {
   
-  const buf = [type, 0, ch, 0];
+  const id_type = id<<8|type;
+  const buf = [id_type, 0, ch, 0];
   const arr = buf.concat(value);
   console.log(arr);
   if (modbusClient.isOpen) {
     try {
       await mutex.acquire();
       
-      changeMap(10000);
 
-      const addr = 2618 + (id - 1) * 16 + (ch - 1);
+      const addr = 63657;
       console.log(
         `id : ${id} addr: ${addr}, data: ${value}`
       );
@@ -781,7 +787,6 @@ const set_iom_ai_test_cmd = async (evt, { id, type, ch, value}) => {
 
       await modbusClient.writeRegisters(addr, arr);
 
-      changeMap(0);
       mutex.release();
     } catch (err) {
       handleError(evt);
