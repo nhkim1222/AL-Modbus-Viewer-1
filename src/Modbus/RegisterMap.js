@@ -198,6 +198,16 @@ export const Map = {
       dio_setup: [],
     },
   },
+  REG_SETUP_IOH_TYPE: {
+    fc: 3,
+    address: 61910,
+    length: 3,
+    data: {
+      access: 0,
+      control_ch: 0,
+      type_exist : 0,
+    },
+  },
   REG_SETUP_IOH_AIO: {
     fc: 3,
     address: 61932,

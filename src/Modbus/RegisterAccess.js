@@ -322,12 +322,10 @@ const get_ioh_logic_setup = async (evt, payload) => {
       await modbusClient.writeRegister(61909 - 1, payload);
       const { address, length } = Map.REG_SETUP_IOH_DIO;
       const { data } = await readRegister(address, length);
-      console.log(`data : ${data}`);
       evt.reply("set-ioh-logic-setup", {
-        access: data[0],
+        access : data[0],
         dio_setup: data.slice(3,20),
       });
-
     } catch (error) {
       handleError(evt);
     }
@@ -474,6 +472,30 @@ const get_io_information = async (evt, { io_id }) => {
 
       evt.reply(replyChannel, information);
     } catch (err) {
+      handleError(evt);
+    }
+  }
+};
+
+const get_ioh_type_setup = async (evt) => {
+  if (modbusClient.isOpen) {
+    try {
+      const buffer = [];
+      for(var i =0; i < 15; i++)
+      {
+        await modbusClient.writeRegister(61909 - 1, i+1);
+        const { address, length, data: setup } = Map.REG_SETUP_IOH_TYPE;
+        const { data } = await readRegister(address, length);
+
+        buffer.push({
+          id: i+1,
+          type: data[2] >> 8,
+          exist: data[2] & 0xF,
+        });
+      }      
+      console.log("get io type setup ",buffer);
+      evt.reply("set-ioh-setup", buffer);
+    } catch (error) {
       handleError(evt);
     }
   }
@@ -884,6 +906,7 @@ export function initRegisterAccess() {
     await get_io_do_status(evt, { io_id });
     await get_io_ai_status(evt, { io_id });
     await get_mismatch_alarm(evt, { io_id });
+    await get_ioh_type_setup(evt);
   });
 
   ipcMain.on("request-pc-data", async (evt, { pc_id }) => {
